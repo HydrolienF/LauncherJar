@@ -4,41 +4,77 @@ import fr.formiko.usual.Folder;
 import fr.formiko.usual.Os;
 import fr.formiko.usual.Progression;
 import fr.formiko.usual.ReadFile;
+import fr.formiko.usual.color;
 import fr.formiko.usual.erreur;
 import fr.formiko.usual.fichier;
 import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 
 public class Launcher {
     private Process pr;
     private String userName = "HydrolienF";
-    private String projectName = "Formiko";
+    private String projectName = "Kokcinelo";
     private String projetLauncherName = projectName + "Launcher";
     private List<String> args;
     private Progression progression;
+    private String currentAppVersion;
+    private String lastAppVersion;
+    private boolean justGetVersion = false;
 
     public Launcher(List<String> args) {
         pr = null;
         this.args = args;
+        color.iniColor();
     }
 
 
-    public boolean iniSettingsIfNeeded() {
-        // TODO
+    public boolean iniSettings() {
+        currentAppVersion = getCurrentAppVersion();
+        lastAppVersion = getLastAppVersion();
+        erreur.info(currentAppVersion + " " + lastAppVersion);
         return true;
     }
     public boolean downloadInGUIIfNeeded() {
-        // TODO
+        if (lastAppVersion == null) {
+            erreur.alerte("Can't find last version:" + lastAppVersion);
+        } else if (lastAppVersion.equals(currentAppVersion)) {
+            erreur.info("No need to download, User have " + currentAppVersion + " that is last version");
+        } else {
+            erreur.alerte("Download game from" + currentAppVersion + "to" + lastAppVersion);
+            downloadGame(lastAppVersion);
+            currentAppVersion = lastAppVersion;
+        }
         return true;
     }
 
     private String getDownloadURL(String version) {
         return "https://github.com/" + userName + "/" + projectName + "/releases/download/" + version + "/" + projectName + ".jar";
+    }
+
+    /**
+     * {@summary Download the game at given version.}<br>
+     * If needed it will download JRE
+     * 
+     * @param version the version to download game at
+     * @return true if it work
+     */
+    public boolean downloadGame(String version) {
+        erreur.info("download Formiko" + version + " from " + getDownloadURL(version) + " to " + getJarPath());
+        getProgression().iniLauncher();
+        File fi = new File(Folder.getFolder().getFolderGameJar());
+        fi.mkdirs();
+        boolean itWork = fichier.download(getDownloadURL(version), getJarPath(), true);
+        return itWork;
     }
 
 
@@ -47,7 +83,6 @@ public class Launcher {
      * Version can be set before call launchGame() with setVersion(String version).
      * 
      * @return true if we need to do launch() again
-     * @lastEditedVersion 0.1
      */
     public boolean launchGame() {
         // set up the command and parameter
@@ -59,9 +94,20 @@ public class Launcher {
         if (javaArgs == null || javaArgs.length == 0) {
             javaArgs = new String[0];
         }
-        args.add("-launchFromLauncher");
+        List<String> args;
+        if (justGetVersion) {
+            args = new ArrayList<String>();
+            args.add("--version");
+        } else {
+            if (this.args != null && this.args.size() > 0 && this.args.get(0) != null && this.args.get(0).length() > 0) {
+                args = this.args;
+            } else {
+                args = new ArrayList<String>();
+            }
+            args.add("-launchFromLauncher");
+        }
         try {
-            String[] cmd = new String[3 + args.size() + javaArgs.length - 1];
+            String[] cmd = new String[3 + args.size() + javaArgs.length];
             int k = 0;
             cmd[k++] = getJavaCommand();
             for (String arg : javaArgs) {
@@ -77,45 +123,22 @@ public class Launcher {
                 }
             }
 
-            erreur.info("commande launch: ");// @a
+            erreur.info("commande launch: ");
             for (String s : cmd) {
-                erreur.print(s + " ");// @a
+                erreur.print(s + " ");
             }
-            erreur.println();// @a
+            erreur.println();
             // create runtime to execute external command
             ProcessBuilder pb = new ProcessBuilder(Arrays.asList(cmd));
-            // .inheritIO();
-            // if (Main.launchWithBash && Os.getOs().isMac()) {
-            // String t[] = new String[4];
-            // t[0] = "/bin/bash";
-            // t[1] = "-l";
-            // t[2] = "-c";
-            // t[3] = "\"";
-            // boolean first = true;
-            // for (String s : cmd) {
-            // if (!first) {
-            // t[3] += " ";
-            // first = false;
-            // }
-            // t[3] += s;
-            // }
-            // t[3] += "\"";
-            // erreur.info("commande launch on mac: ");// @a
-            // for (String s : t) {
-            // erreur.print(s + " ");
-            // }
-            // erreur.println();
-            // pb = new ProcessBuilder(Arrays.asList(t));
-            // }
 
             if (Os.getOs().isMac()) {
                 pb.directory(new File(System.getProperty("user.home")));
             }
 
-            File parentLog = new File(Folder.getFolder().getFolderTemporary());
+            File parentLog = new File(getPathToTemporaryFolder());
             parentLog.mkdirs();
             if (Main.logToFile && parentLog.exists()) {
-                File fout = new File(Folder.getFolder().getFolderTemporary() + "log.txt");
+                File fout = new File(getPathToTemporaryFolder() + "log.txt");
                 try {
                     pb.redirectOutput(Redirect.appendTo(fout));
                     erreur.info("All info, error & alerte are redirected to " + fout.getCanonicalPath());
@@ -154,6 +177,15 @@ public class Launcher {
         return false; // don't restart launcher
     }
 
+    private String getPathToTemporaryFolder() { return Folder.getFolder().getFolderTemporary(); }
+    private String getPathToJarFolder() { return Folder.getFolder().getFolderGameJar(); }
+    /**
+     * {@summary Give path to Formiko.jar.}<br>
+     * 
+     * @return path to Formiko.jar depending of the Os
+     */
+    public String getJarPath() { return getPathToJarFolder() + projectName + ".jar"; }
+
 
     /**
      * {@summary Give path to execute java.}<br>
@@ -184,7 +216,7 @@ public class Launcher {
         } else {
             erreur.alerte("Can't execute " + javaCmd);
         }
-        return javaCmd;
+        return "java";
     }
 
     /**
@@ -206,7 +238,6 @@ public class Launcher {
      * {@summary Give path to launcher files ressources.}<br>
      * 
      * @return path launcher files depending of the Os
-     * @lastEditedVersion 1.0
      */
     public String getPathToLauncherFilesApp() {
         if (Os.getOs().isWindows()) {
@@ -232,14 +263,6 @@ public class Launcher {
         }
         return null;
     }
-
-    /**
-     * {@summary Give path to Formiko.jar.}<br>
-     * 
-     * @return path to Formiko.jar depending of the Os
-     */
-    // TODO point to downloaded .jar
-    public String getJarPath() { return "C:/Users/lili5/git/LauncherJar/Kokcinelo.jar"; }
 
     /**
      * {@summary Try to make a file executable.}
@@ -270,11 +293,66 @@ public class Launcher {
             }
         });
     }
+    /**
+     * {@summary It launch the game with args --version then get it from the log.}
+     * 
+     * @return current jar version
+     */
+    private String getCurrentAppVersion() {
+        justGetVersion = true;
+        launchGame();
+        justGetVersion = false;
+        File fout = new File(getPathToTemporaryFolder() + "log.txt");
+        String lastLine = "";
+        for (String line : ReadFile.readFileList(fout)) {
+            if (line.length() > 1) {
+                lastLine = line;
+            }
+        }
+        return lastLine.strip();
+    }
+    /**
+     * {@summary It download the infos off last stable version &#38; return tag_name value.}
+     * 
+     * @return last aviable jar version
+     */
+    private String getLastAppVersion() {
+        File ftemp = new File(getPathToTemporaryFolder() + "temp.json");
+        String url = "https://api.github.com/repos/" + userName + "/" + projectName + "/releases/latest";
+        try {
+            fichier.download(url, ftemp.getCanonicalPath());
+            return getXVersion(Paths.get(ftemp.getCanonicalPath()), "tag_name");
+        } catch (IOException e) {
+            erreur.erreur("Fail to download lastVersionInfo");
+        }
+        return null;
+    }
+
+    /**
+     * {@summary Return the version from path &#38; name of the wanted version.}<br>
+     * If it fail, it will return a defaut version.
+     * 
+     * @param pathToJson       path to the .json file taht containt version
+     * @param nameOfTheVersion name of the version
+     * @return a version String as 1.49.12
+     */
+    public String getXVersion(Path pathToJson, String nameOfTheVersion) {
+        try {
+            Reader reader = Files.newBufferedReader(pathToJson);
+            JsonObject parser = (JsonObject) Jsoner.deserialize(reader);
+            String version = (String) parser.get(nameOfTheVersion);
+            if (version == null) {
+                erreur.alerte("can't read " + nameOfTheVersion + " version");
+            }
+            return version;
+        } catch (Exception e) {
+            erreur.alerte("can't read " + nameOfTheVersion + " version");
+            return "0.0.0";
+        }
+    }
 
     /**
      * {@summary Getter with lazy initialization.}<br>
-     * 
-     * @lastEditedVersion 1.0
      */
     public Progression getProgression() {
         if (progression == null) {
@@ -282,6 +360,9 @@ public class Launcher {
         }
         return progression;
     }
+    /**
+     * {@summary Simple CLI view that are update as a progression for downloading files.}<br>
+     */
     class ProgressionCLI implements Progression {
         @Override
         public void iniLauncher() { fichier.setProgression(this); }
