@@ -25,7 +25,7 @@ env:
   JAVA_VERSION: '18'
   JAVA_DISTRIBUTION: 'temurin'
   JRE_VERSION: '18.0.7'
-  GITHUB_TOKEN: ${{ github.token }}
+  # GITHUB_TOKEN: ${{ github.token }}
   # PROJECT_NAME: 'Kokcinelo'
   # USER_NAME: 'HydrolienF'
   # ARTIFACT_NAME: 'KokcineloLauncher'
@@ -33,7 +33,7 @@ env:
 
 
 runs:
-  using: "bash"
+  using: "composite"
   steps:
 
   - uses: actions/setup-java@v3
@@ -42,6 +42,7 @@ runs:
       java-version: ${{ env.JAVA_VERSION }}
 
   - name: download LauncherJar
+    shell: bash
     run: |
       wget https://github.com/HydrolienF/LauncherJar/archive/refs/tags/{{ inputs.launcher-jar-version }}.zip
       unzip {{ inputs.launcher-jar-version }}.zip
@@ -53,9 +54,11 @@ runs:
     id: version
 
   - name: update version.md
+    shell: bash
     run: echo ${{ steps.version.outputs.version }} > version.md
 
   - name: create launcher jar
+    shell: bash
     run: |
       cd LauncherJar-{{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
