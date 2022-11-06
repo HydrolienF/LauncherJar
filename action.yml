@@ -64,7 +64,7 @@ runs:
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
       mvn -ntp package
-      mv target/${{ inputs.project-name }}-$(cat version.md).jar ${{ inputs.project-name }}.jar
+      mv target/LauncherJar*.jar ${{ inputs.project-name }}.jar
       echo "choose name"
       nom=${{ inputs.project-name }}$(cat version.md)
       if [[ -e out/ ]]; then
