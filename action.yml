@@ -1,4 +1,9 @@
 name: LauncherJar
+author: "HydrolienF"
+description: 'Create a launcher for any jar app.'
+branding:
+  icon: 'chevron-up'
+  color: 'orange'
 
 on:
   pull_request:
