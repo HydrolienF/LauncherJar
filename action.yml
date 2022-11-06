@@ -57,10 +57,8 @@ runs:
 
   - name: create launcher as .jar
     shell: bash
-    if: ${{ inputs.launcher-extension }}==jar
+    if: inputs.launcher-extension==jar
     run: |
-      echo ${{ inputs.launcher-extension }}
-      echo jar
       echo ${{ inputs.app-version }} > version.md
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.launcher-jar-version }}"
@@ -99,10 +97,8 @@ runs:
 
   - name: download jlink/
     shell: bash
-    if: ${{ inputs.launcher-extension }}!=jar
+    if: inputs.launcher-extension!=jar
     run: |
-      echo ${{ inputs.launcher-extension }}
-      echo jar
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j${{ env.OS }}/'
       ls jlink/
@@ -110,7 +106,7 @@ runs:
 
   - name: download launcher as .zip unziped
     shell: bash
-    if: ${{ inputs.launcher-extension }}!=jar
+    if: inputs.launcher-extension!=jar
     run: |
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
@@ -121,7 +117,7 @@ runs:
 
   - name: create msi installer
     shell: pwsh
-    if: ${{ inputs.launcher-extension }}==msi
+    if: inputs.launcher-extension==msi
     env:
       OS: 'Windows'
     run: |
