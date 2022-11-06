@@ -13,8 +13,8 @@ env:
   GITHUB_TOKEN: ${{ github.token }}
   PROJECT_NAME: 'Kokcinelo'
   USER_NAME: 'HydrolienF'
-  ARTIFACT_NAME: '${{ env.PROJECT_NAME }}Launcher'
-  JPACKAGE: 'jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ env.PROJECT_NAME }} --main-jar ${{ env.PROJECT_NAME }}.jar --main-class fr.${{ env.PROJECT_NAME }}.${{ env.PROJECT_NAME }}launcher.Main --app-version $(cat version.md) --description "Launcher of ${{ env.PROJECT_NAME }}" --license-file LICENSE.md  --vendor ${{ env.USER_NAME }} --runtime-image jlink/'
+  ARTIFACT_NAME: 'KokcineloLauncher'
+  JPACKAGE: 'jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name Kokcinelo --main-jar Kokcinelo.jar --main-class fr.formiko.launcherjar.Main --app-version $(cat version.md) --description "Launcher of Kokcinelo" --license-file LICENSE.md  --vendor Hydrolien --runtime-image jlink/'
 
 jobs:
   releaseJob:
