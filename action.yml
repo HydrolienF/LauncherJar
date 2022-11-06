@@ -136,6 +136,16 @@ runs:
   # TODO create mac & linux artifact
 
   - name: upload artifact
+    if: inputs.launcher-extension=='jar'
+    uses: actions/upload-release-asset@v1
+    with:
+      upload_url: ${{ inputs.release-url }}
+      asset_path: ${{ inputs.project-name }}Launcher.zip
+      asset_name: ${{ inputs.project-name }}Launcher.zip
+      asset_content_type: application/zip
+
+  - name: upload artifact
+    if: inputs.launcher-extension!='jar'
     uses: actions/upload-release-asset@v1
     with:
       upload_url: ${{ inputs.release-url }}
