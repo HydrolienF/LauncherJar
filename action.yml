@@ -16,6 +16,10 @@ inputs:
     description: 'Name of your projet'
     required: true
     default: 'App'
+  launcher-jar-version:
+    description: 'Version of launcher jar'
+    required: true
+    default: '0.0.0'
 
 env:
   JAVA_VERSION: '18'
@@ -32,75 +36,75 @@ runs:
   using: "bash"
   steps:
 
-  - name: download LauncherJar
-    run: |
-      version="0.6.2"
-      wget https://github.com/HydrolienF/LauncherJar/archive/refs/tags/$version.zip
-      unzip $version.zip
-      ls LauncherJar-$version/
-
   - uses: actions/setup-java@v3
     with:
       distribution: ${{ env.JAVA_DISTRIBUTION }}
       java-version: ${{ env.JAVA_VERSION }}
 
+  - name: download LauncherJar
+    run: |
+      wget https://github.com/HydrolienF/LauncherJar/archive/refs/tags/{{ inputs.launcher-jar-version }}.zip
+      unzip {{ inputs.launcher-jar-version }}.zip
+      ls LauncherJar-{{ inputs.launcher-jar-version }}/
 
-    # - name: Version-Tool
-    #   uses: HydrolienF/Version-Tool@0.6.4
-    #   id: version
 
-    # - name: update version.md
-    #   run: echo ${{ steps.version.outputs.version }} > version.md
+  - name: Version-Tool
+    uses: HydrolienF/Version-Tool@0.6.4
+    id: version
 
-    # - name: exe.sh
-    #   run: |
-    #     mvn -ntp versions:set -DnewVersion="$(cat version.md)"
-    #     mvn -ntp package
-    #     mv target/${{ env.PROJECT_NAME }}-$(cat version.md).jar ${{ env.PROJECT_NAME }}.jar
-    #     echo "choose name"
-    #     nom=${{ env.PROJECT_NAME }}$(cat version.md)
-    #     if [[ -e out/ ]]; then
-    #       echo "clear out"
-    #       rm out/ -fr
-    #     fi
-    #     mkdir out/
+  - name: update version.md
+    run: echo ${{ steps.version.outputs.version }} > version.md
 
-    #     mkdir out/$nom
-    #     echo "cp .jar, README.md, LICENSE.md & version.md"
-    #     mv ${{ env.PROJECT_NAME }}.jar out/$nom/.
-    #     cp README.md out/$nom/.
-    #     cp LICENSE.md out/$nom/.
-    #     cp version.md out/$nom/.
-    #     cp .mvn/jvm.config out/$nom/.
-    #     echo ${{ env.JRE_VERSION }} > out/$nom/JREVersion.md
+  - name: create launcher jar
+    run: |
+      cd LauncherJar-{{ inputs.launcher-jar-version }}/
+      mvn -ntp versions:set -DnewVersion="$(cat version.md)"
+      mvn -ntp package
+      mv target/${{ inputs.project-name }}-$(cat version.md).jar ${{ inputs.project-name }}.jar
+      echo "choose name"
+      nom=${{ inputs.project-name }}$(cat version.md)
+      if [[ -e out/ ]]; then
+        echo "clear out"
+        rm out/ -fr
+      fi
+      mkdir out/
 
-    #     echo "zip part"
-    #     cd out/
-    #     zip -qr $nom.zip $nom
-    #     echo "delete directory"
-    #     rm -fr $nom
-    #     cd ..
+      mkdir out/$nom
+      echo "cp .jar, README.md, LICENSE.md & version.md"
+      mv ${{ inputs.project-name }}.jar out/$nom/.
+      cp ../README.md out/$nom/.
+      cp ../LICENSE.md out/$nom/.
+      # cp ../version.md out/$nom/.
+      # cp ../.mvn/jvm.config out/$nom/.
+      echo ${{ env.JRE_VERSION }} > out/$nom/JREVersion.md
 
-    #     echo "-----------------------"
-    #     ls -l out/
-    #     echo "-----------------------"
+      echo "zip part"
+      cd out/
+      zip -qr $nom.zip $nom
+      echo "delete directory"
+      rm -fr $nom
+      cd ..
 
-    # - name: release
-    #   uses: actions/create-release@v1
-    #   id: create_release
-    #   with:
-    #     draft: false
-    #     prerelease: true
-    #     release_name: ${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}
-    #     tag_name: ${{ steps.version.outputs.version }}
-    #     body_path: CHANGELOG.md
-    # - name: upload .jar artifact
-    #   uses: actions/upload-release-asset@v1
-    #   with:
-    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_path: ./out/${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}.zip
-    #     asset_name: ${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}.zip
-    #     asset_content_type: application/zip
+      echo "-----------------------"
+      ls -l out/
+      echo "-----------------------"
+
+  - name: release
+    uses: actions/create-release@v1
+    id: create_release
+    with:
+      draft: false
+      prerelease: true
+      release_name: ${{ inputs.project-name }}${{ steps.version.outputs.version }}
+      tag_name: ${{ steps.version.outputs.version }}
+      body_path: CHANGELOG.md
+  - name: upload .jar artifact
+    uses: actions/upload-release-asset@v1
+    with:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      asset_path: ./out/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip
+      asset_name: ${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip
+      asset_content_type: application/zip
 
     # - name: commit version
     #   run: |
@@ -152,10 +156,10 @@ runs:
   #     run: |
   #       # Start of commun par with all OS
   #       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
-  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ env.PROJECT_NAME }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}.zip in/ ${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}/'
+  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip in/ ${{ inputs.project-name }}${{ steps.version.outputs.version }}/'
   #       ls in/
   #       # end of commun par with all OS
-  #       ${{ env.JPACKAGE }} --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ env.PROJECT_NAME }}" -t msi --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b3"
+  #       ${{ env.JPACKAGE }} --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" -t msi --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b3"
   #       rm -r in
   #       cscript tools/addLaunchToMsi.js ${{ steps.version.outputs.version }}
   #       echo "======================================================"
@@ -165,7 +169,7 @@ runs:
   #       echo "ls out/"
   #       ls out/
   #       echo "======================================================"
-  #       mv ./out/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.msi ${{ env.ARTIFACT_NAME }}.msi
+  #       mv ./out/${{ inputs.project-name }}-${{ steps.version.outputs.version }}.msi ${{ env.ARTIFACT_NAME }}.msi
   #   - name: upload .msi artifact
   #     uses: actions/upload-release-asset@v1
   #     with:
@@ -207,14 +211,14 @@ runs:
   #     run: |
   #       # Start of commun par with all OS
   #       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
-  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ env.PROJECT_NAME }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}.zip in/ ${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}/'
+  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip in/ ${{ inputs.project-name }}${{ steps.version.outputs.version }}/'
   #       ls in/
   #       # end of commun par with all OS
   #       # TOFIX shortcut don't seem's to work neether in menu, nor in terminal.
   #       # TOFIX icon is not used on tab screen or in menu screen
-  #       ${{ env.JPACKAGE }} --icon tools/icon.png -t deb --linux-package-name ${{ env.PROJECT_NAME }} --linux-shortcut --linux-deb-maintainer hydrolien.f@gmail.com --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir tools/debRessources/
+  #       ${{ env.JPACKAGE }} --icon tools/icon.png -t deb --linux-package-name ${{ inputs.project-name }} --linux-shortcut --linux-deb-maintainer hydrolien.f@gmail.com --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir tools/debRessources/
   #       ls out/
-  #       mv out/${{ env.PROJECT_NAME }}_${{ steps.version.outputs.version }}_amd64.deb ${{ env.ARTIFACT_NAME }}.deb
+  #       mv out/${{ inputs.project-name }}_${{ steps.version.outputs.version }}_amd64.deb ${{ env.ARTIFACT_NAME }}.deb
   #   - name: upload .deb artifact
   #     uses: actions/upload-release-asset@v1
   #     with:
@@ -256,14 +260,14 @@ runs:
   #     run: |
   #       # Start of commun par with all OS
   #       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
-  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ env.PROJECT_NAME }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}.zip in/ ${{ env.PROJECT_NAME }}${{ steps.version.outputs.version }}/'
+  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip in/ ${{ inputs.project-name }}${{ steps.version.outputs.version }}/'
   #       ls in/
   #       # end of commun par with all OS
   #       # TOFIX shortcut don't seem's to work neether in menu, nor in terminal.
   #       # TOFIX icon is not used on tab screen or in menu screen
-  #       ${{ env.JPACKAGE }} --icon tools/icon.icns -t dmg --mac-package-name ${{ env.PROJECT_NAME }} --mac-package-identifier "1468751e-078f-4fab-80e4-fa15e9b364b3"
+  #       ${{ env.JPACKAGE }} --icon tools/icon.icns -t dmg --mac-package-name ${{ inputs.project-name }} --mac-package-identifier "1468751e-078f-4fab-80e4-fa15e9b364b3"
   #       ls out/
-  #       mv out/${{ env.PROJECT_NAME }}-${{ steps.version.outputs.version }}.dmg ${{ env.ARTIFACT_NAME }}.dmg
+  #       mv out/${{ inputs.project-name }}-${{ steps.version.outputs.version }}.dmg ${{ env.ARTIFACT_NAME }}.dmg
   #   - name: upload .dmg artifact
   #     uses: actions/upload-release-asset@v1
   #     with:
