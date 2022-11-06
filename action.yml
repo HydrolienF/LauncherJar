@@ -98,7 +98,7 @@ runs:
     uses: actions/upload-release-asset@v1
     with:
       upload_url: ${{ inputs.release-url }}
-      asset_path: ./out/${{ inputs.project-name }}Launcher.zip
+      asset_path: ./LauncherJar-${{ inputs.launcher-jar-version }}/out/${{ inputs.project-name }}Launcher.zip
       asset_name: ${{ inputs.project-name }}Launcher.zip
       asset_content_type: application/zip
 

@@ -24,7 +24,7 @@ public class Launcher {
     private Process pr;
     private String userName = "HydrolienF";
     private String projectName = "Kokcinelo";
-    private String projetLauncherName = projectName + "Launcher";
+    private String projetLauncherName;
     private List<String> args;
     private Progression progression;
     private String currentAppVersion;
@@ -35,6 +35,7 @@ public class Launcher {
         pr = null;
         this.args = args;
         color.iniColor();
+        projetLauncherName = projectName + "Launcher";
     }
 
 
