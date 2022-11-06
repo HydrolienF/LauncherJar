@@ -2,7 +2,7 @@ name: LauncherJar
 author: "HydrolienF"
 description: 'Create a launcher for any jar app.'
 branding:
-  icon: 'chevron-up'
+  icon: 'play'
   color: 'orange'
 
 on:
