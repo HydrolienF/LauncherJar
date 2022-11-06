@@ -48,7 +48,7 @@ runs:
 
 
   - name: Version-Tool
-    uses: HydrolienF/Version-Tool@0.6.4
+    uses: HydrolienF/Version-Tool@0.7.0
     id: version
 
   - name: update version.md
