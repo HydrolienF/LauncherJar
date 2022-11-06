@@ -20,10 +20,10 @@ inputs:
     description: 'Version of launcher jar'
     required: true
   GITHUB_TOKEN:
-    description: '${{ github.token }} from your action so that this action can add artifacts'
+    description: 'dollar{{ github.token }} from your action so that this action can add artifacts'
     required: true
   release-url:
-    description: '${{ steps.create_release.outputs.upload_url }} from your action so that this action can add artifacts'
+    description: 'dollar{{ steps.create_release.outputs.upload_url }} from your action so that this action can add artifacts'
     required: true
 
 env:
