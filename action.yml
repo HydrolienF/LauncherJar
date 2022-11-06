@@ -57,7 +57,7 @@ runs:
 
   - name: create launcher as .jar
     shell: bash
-    if: ${{ inputs.launcher-jar-version }}=='jar'
+    if: ${{ inputs.launcher-extension }}=='jar'
     run: |
       echo ${{ inputs.app-version }} > version.md
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
@@ -91,36 +91,33 @@ runs:
       echo "-----------------------"
       ls -l out/
       echo "-----------------------"
-
-  - name: upload .jar artifact
-    if: ${{ inputs.launcher-jar-version }}=='jar'
-    uses: actions/upload-release-asset@v1
-    with:
-      upload_url: ${{ inputs.release-url }}
-      asset_path: ./LauncherJar-${{ inputs.launcher-jar-version }}/out/${{ inputs.project-name }}Launcher.zip
-      asset_name: ${{ inputs.project-name }}Launcher.zip
-      asset_content_type: application/zip
+      cd ..
+      mv ./LauncherJar-${{ inputs.launcher-jar-version }}/out/${{ inputs.project-name }}Launcher.zip ${{ inputs.project-name }}Launcher.zip
 
 
   - name: download jlink/
     shell: bash
-    if: ${{ inputs.launcher-jar-version }}!='jar'
+    if: ${{ inputs.launcher-extension }}!='jar'
     run: |
+      cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp compile exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j${{ env.OS }}/'
       ls jlink/
+      mv jlink/ ../
 
   - name: download launcher as .zip unziped
     shell: bash
-    if: ${{ inputs.launcher-jar-version }}!='jar'
+    if: ${{ inputs.launcher-extension }}!='jar'
     run: |
+      cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
       ls in/
+      mv in/ ../
 
 
   - name: create msi installer
     shell: pwsh
-    if: ${{ inputs.launcher-jar-version }}=='msi'
+    if: ${{ inputs.launcher-extension }}=='msi'
     env:
       OS: 'Windows'
     run: |
@@ -136,15 +133,15 @@ runs:
       echo "======================================================"
       mv ./out/${{ env.ARTIFACT_NAME }}-${{ inputs.app-version }}.msi ${{ env.ARTIFACT_NAME }}.msi
 
-  # TODO create & upload mac & linux artifact
+  # TODO create mac & linux artifact
 
-  - name: upload .msi artifact
+  - name: upload artifact
     uses: actions/upload-release-asset@v1
     with:
       upload_url: ${{ inputs.release-url }}
-      asset_path: ${{ env.ARTIFACT_NAME }}.msi
-      asset_name: ${{ env.ARTIFACT_NAME }}.msi
-      asset_content_type: application/msi
+      asset_path: ${{ inputs.project-name }}Launcher.${{ inputs.launcher-extension }}
+      asset_name: ${{ inputs.project-name }}Launcher.${{ inputs.launcher-extension }}
+      asset_content_type: application/${{ inputs.launcher-extension }}
 
 
   # TODO for each OS:
