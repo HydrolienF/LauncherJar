@@ -21,18 +21,10 @@ env:
   # ARTIFACT_NAME: 'KokcineloLauncher'
   # JPACKAGE: 'jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name Kokcinelo --main-jar Kokcinelo.jar --main-class fr.formiko.launcherjar.Main --app-version $(cat version.md) --description "Launcher of Kokcinelo" --license-file LICENSE.md  --vendor Hydrolien --runtime-image jlink/'
 
-jobs:
-  releaseJob:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    outputs:
-      output1: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-java@v3
-      with:
-        distribution: ${{ env.JAVA_DISTRIBUTION }}
-        java-version: ${{ env.JAVA_VERSION }}
+
+runs:
+  using: "bash"
+  steps:
 
   - name: download LauncherJar
     run: |
@@ -40,6 +32,25 @@ jobs:
       wget https://github.com/HydrolienF/LauncherJar/archive/refs/tags/$version.zip
       unzip $version.zip
       ls LauncherJar-$version/
+# jobs:
+#   releaseJob:
+#     if: github.event.pull_request.merged == true
+#     runs-on: ubuntu-latest
+#     outputs:
+#       output1: ${{ steps.create_release.outputs.upload_url }}
+#     steps:
+#     - uses: actions/checkout@v3
+#     - uses: actions/setup-java@v3
+#       with:
+#         distribution: ${{ env.JAVA_DISTRIBUTION }}
+#         java-version: ${{ env.JAVA_VERSION }}
+
+#   - name: download LauncherJar
+#     run: |
+#       version="0.6.2"
+#       wget https://github.com/HydrolienF/LauncherJar/archive/refs/tags/$version.zip
+#       unzip $version.zip
+#       ls LauncherJar-$version/
 
     # - name: Version-Tool
     #   uses: HydrolienF/Version-Tool@0.6.4
