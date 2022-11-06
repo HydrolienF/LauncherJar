@@ -141,7 +141,7 @@ runs:
   - name: upload .msi artifact
     uses: actions/upload-release-asset@v1
     with:
-      upload_url: ${{ needs.releaseJob.outputs.upload_url }}
+      upload_url: ${{ inputs.release-url }}
       asset_path: ${{ env.ARTIFACT_NAME }}.msi
       asset_name: ${{ env.ARTIFACT_NAME }}.msi
       asset_content_type: application/msi
