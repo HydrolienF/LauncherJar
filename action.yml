@@ -19,12 +19,17 @@ inputs:
   launcher-jar-version:
     description: 'Version of launcher jar'
     required: true
+  GITHUB_TOKEN:
+    description: '${{ github.token }} from your action so that this action can add artifacts'
+    required: true
+  release-url:
+    description: '${{ steps.create_release.outputs.upload_url }} from your action so that this action can add artifacts'
+    required: true
 
 env:
   JAVA_VERSION: '18'
   JAVA_DISTRIBUTION: 'temurin'
   JRE_VERSION: '18.0.7'
-  # GITHUB_TOKEN: ${{ github.token }}
   # USER_NAME: 'HydrolienF'
   # ARTIFACT_NAME: 'KokcineloLauncher'
   # JPACKAGE: 'jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name Kokcinelo --main-jar Kokcinelo.jar --main-class fr.formiko.launcherjar.Main --app-version $(cat version.md) --description "Launcher of Kokcinelo" --license-file LICENSE.md  --vendor Hydrolien --runtime-image jlink/'
@@ -90,19 +95,11 @@ runs:
       ls -l out/
       echo "-----------------------"
 
-  - name: release
-    uses: actions/create-release@v1
-    id: create_release
-    with:
-      draft: false
-      prerelease: true
-      release_name: ${{ inputs.project-name }}${{ steps.version.outputs.version }}
-      tag_name: ${{ steps.version.outputs.version }}
-      body_path: CHANGELOG.md
+
   - name: upload .jar artifact
     uses: actions/upload-release-asset@v1
     with:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      upload_url: ${{ inputs.release-url }}
       asset_path: ./out/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip
       asset_name: ${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip
       asset_content_type: application/zip
