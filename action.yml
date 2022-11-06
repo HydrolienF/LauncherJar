@@ -51,7 +51,7 @@ runs:
   - name: download LauncherJar files
     shell: bash
     run: |
-      mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip LauncherJar-${{ inputs.launcher-jar-version }}/"
+      mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip LauncherJar-${{ inputs.launcher-jar-version }}/'
       # wget https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip
       # unzip ${{ inputs.launcher-jar-version }}.zip
       ls LauncherJar-${{ inputs.launcher-jar-version }}/
