@@ -86,7 +86,7 @@ runs:
 
       echo "zip part"
       cd out/
-      zip -qr $nom.zip $nom
+      zip -qr ${{ inputs.project-name }}Launcher.zip $nom
       echo "delete directory"
       rm -fr $nom
       cd ..
@@ -100,8 +100,8 @@ runs:
     uses: actions/upload-release-asset@v1
     with:
       upload_url: ${{ inputs.release-url }}
-      asset_path: ./out/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip
-      asset_name: ${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip
+      asset_path: ./out/${{ inputs.project-name }}Launcher.zip
+      asset_name: ${{ inputs.project-name }}Launcher.zip
       asset_content_type: application/zip
 
     # - name: commit version
