@@ -30,7 +30,7 @@ inputs:
   launcher-extension:
     description: 'the launcher extention: jar, msi, deb or dmg'
     required: false
-    default: 'jar'
+    default: jar
 
 env:
   JAVA_VERSION: '18'
@@ -57,8 +57,10 @@ runs:
 
   - name: create launcher as .jar
     shell: bash
-    if: ${{ inputs.launcher-extension }}=='jar'
+    if: ${{ inputs.launcher-extension }}==jar
     run: |
+      echo ${{ inputs.launcher-extension }}
+      echo jar
       echo ${{ inputs.app-version }} > version.md
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.launcher-jar-version }}"
@@ -97,27 +99,29 @@ runs:
 
   - name: download jlink/
     shell: bash
-    if: ${{ inputs.launcher-extension }}!='jar'
+    if: ${{ inputs.launcher-extension }}!=jar
     run: |
+      echo ${{ inputs.launcher-extension }}
+      echo jar
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
-      mvn -ntp compile exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j${{ env.OS }}/'
+      mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j${{ env.OS }}/'
       ls jlink/
       mv jlink/ ../
 
   - name: download launcher as .zip unziped
     shell: bash
-    if: ${{ inputs.launcher-extension }}!='jar'
+    if: ${{ inputs.launcher-extension }}!=jar
     run: |
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
-      mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+      mvn -ntp exec:java -Dargs='downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
       ls in/
       mv in/ ../
 
 
   - name: create msi installer
     shell: pwsh
-    if: ${{ inputs.launcher-extension }}=='msi'
+    if: ${{ inputs.launcher-extension }}==msi
     env:
       OS: 'Windows'
     run: |
