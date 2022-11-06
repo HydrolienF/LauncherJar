@@ -25,6 +25,9 @@ inputs:
   release-url:
     description: 'dollar{{ steps.create_release.outputs.upload_url }} from your action so that this action can add artifacts'
     required: true
+  app-version:
+    description: 'version of the app & of the launcher'
+    required: true
 
 env:
   JAVA_VERSION: '18'
@@ -51,14 +54,9 @@ runs:
       unzip ${{ inputs.launcher-jar-version }}.zip
       ls LauncherJar-${{ inputs.launcher-jar-version }}/
 
-
-  - name: Version-Tool
-    uses: HydrolienF/Version-Tool@0.7.0
-    id: version
-
   - name: update version.md
     shell: bash
-    run: echo ${{ steps.version.outputs.version }} > version.md
+    run: echo ${{ inputs.app-version }} > version.md
 
   - name: create launcher jar
     shell: bash
@@ -154,12 +152,12 @@ runs:
   #     run: |
   #       # Start of commun par with all OS
   #       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
-  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip in/ ${{ inputs.project-name }}${{ steps.version.outputs.version }}/'
+  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}${{ inputs.app-version }}.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
   #       ls in/
   #       # end of commun par with all OS
   #       ${{ env.JPACKAGE }} --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" -t msi --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b3"
   #       rm -r in
-  #       cscript tools/addLaunchToMsi.js ${{ steps.version.outputs.version }}
+  #       cscript tools/addLaunchToMsi.js ${{ inputs.app-version }}
   #       echo "======================================================"
   #       echo "ls"
   #       ls
@@ -167,7 +165,7 @@ runs:
   #       echo "ls out/"
   #       ls out/
   #       echo "======================================================"
-  #       mv ./out/${{ inputs.project-name }}-${{ steps.version.outputs.version }}.msi ${{ env.ARTIFACT_NAME }}.msi
+  #       mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.msi ${{ env.ARTIFACT_NAME }}.msi
   #   - name: upload .msi artifact
   #     uses: actions/upload-release-asset@v1
   #     with:
@@ -209,14 +207,14 @@ runs:
   #     run: |
   #       # Start of commun par with all OS
   #       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
-  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip in/ ${{ inputs.project-name }}${{ steps.version.outputs.version }}/'
+  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}${{ inputs.app-version }}.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
   #       ls in/
   #       # end of commun par with all OS
   #       # TOFIX shortcut don't seem's to work neether in menu, nor in terminal.
   #       # TOFIX icon is not used on tab screen or in menu screen
   #       ${{ env.JPACKAGE }} --icon tools/icon.png -t deb --linux-package-name ${{ inputs.project-name }} --linux-shortcut --linux-deb-maintainer hydrolien.f@gmail.com --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir tools/debRessources/
   #       ls out/
-  #       mv out/${{ inputs.project-name }}_${{ steps.version.outputs.version }}_amd64.deb ${{ env.ARTIFACT_NAME }}.deb
+  #       mv out/${{ inputs.project-name }}_${{ inputs.app-version }}_amd64.deb ${{ env.ARTIFACT_NAME }}.deb
   #   - name: upload .deb artifact
   #     uses: actions/upload-release-asset@v1
   #     with:
@@ -258,14 +256,14 @@ runs:
   #     run: |
   #       # Start of commun par with all OS
   #       mvn -ntp versions:set -DnewVersion="$(cat version.md)"
-  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ steps.version.outputs.version }}/${{ inputs.project-name }}${{ steps.version.outputs.version }}.zip in/ ${{ inputs.project-name }}${{ steps.version.outputs.version }}/'
+  #       mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip https://github.com/${{ env.USER_NAME }}/${{ inputs.project-name }}Launcher/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}${{ inputs.app-version }}.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
   #       ls in/
   #       # end of commun par with all OS
   #       # TOFIX shortcut don't seem's to work neether in menu, nor in terminal.
   #       # TOFIX icon is not used on tab screen or in menu screen
   #       ${{ env.JPACKAGE }} --icon tools/icon.icns -t dmg --mac-package-name ${{ inputs.project-name }} --mac-package-identifier "1468751e-078f-4fab-80e4-fa15e9b364b3"
   #       ls out/
-  #       mv out/${{ inputs.project-name }}-${{ steps.version.outputs.version }}.dmg ${{ env.ARTIFACT_NAME }}.dmg
+  #       mv out/${{ inputs.project-name }}-${{ inputs.app-version }}.dmg ${{ env.ARTIFACT_NAME }}.dmg
   #   - name: upload .dmg artifact
   #     uses: actions/upload-release-asset@v1
   #     with:
