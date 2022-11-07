@@ -48,7 +48,7 @@ runs:
       java-version: ${{ env.JAVA_VERSION }}
 
   - name: download LauncherJar files
-    uses: HydrolienF/usual@0.3.9
+    uses: HydrolienF/usual@0.3.34
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip LauncherJar-${{ inputs.launcher-jar-version }}/'
 
