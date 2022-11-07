@@ -49,13 +49,10 @@ runs:
       java-version: ${{ env.JAVA_VERSION }}
 
   - name: download LauncherJar files
-    shell: bash
-    run: |
-      # mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip LauncherJar-${{ inputs.launcher-jar-version }}/'
-      # TODO replace wget by something that also work on Windows as a github action
-      wget https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip
-      unzip ${{ inputs.launcher-jar-version }}.zip
-      ls LauncherJar-${{ inputs.launcher-jar-version }}/
+    if: inputs.launcher-extension!='jar'
+    uses: HydrolienF/usual@0.3.8
+    with:
+      args: 'downloadAndUnzip https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip LauncherJar-${{ inputs.launcher-jar-version }}/'
 
   - name: create launcher as .jar
     shell: bash
