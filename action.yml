@@ -50,7 +50,12 @@ runs:
   - name: download LauncherJar files
     uses: HydrolienF/usual@0.3.34
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip LauncherJar-${{ inputs.launcher-jar-version }}/'
+      args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
+  
+  - name: download LauncherJar files
+    uses: HydrolienF/usual@0.3.34
+    with:
+      args: 'unzip temp.zip .'
 
   - name: create launcher as .jar
     shell: bash
