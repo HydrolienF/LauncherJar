@@ -56,7 +56,11 @@ runs:
     shell: bash
     if: inputs.launcher-extension=='jar'
     run: |
+      cd ~
       echo ${{ inputs.app-version }} > version.md
+      echo ls -------------------------------------
+      ls
+      echo ----------------------------------------
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.launcher-jar-version }}"
       mvn -ntp package
