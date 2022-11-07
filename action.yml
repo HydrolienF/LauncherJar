@@ -79,12 +79,15 @@ runs:
       mkdir out/
 
       mkdir out/$nom
+      echo ls ~ -----------------------------------
+      ls ~
+      echo ----------------------------------------
       echo "cp .jar, README.md, LICENSE.md & version.md"
       mv ${{ inputs.project-name }}.jar out/$nom/.
-      cp ../README.md out/$nom/.
-      cp ../LICENSE.md out/$nom/.
+      cp ~/README* out/$nom/.
+      cp ~/LICENSE* out/$nom/.
       # cp ../version.md out/$nom/.
-      # cp ../.mvn/jvm.config out/$nom/.
+      cp ~/.mvn/jvm.config out/$nom/.
       echo ${{ env.JRE_VERSION }} > out/$nom/JREVersion.md
 
       echo "zip part"
