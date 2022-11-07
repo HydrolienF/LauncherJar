@@ -36,7 +36,6 @@ env:
   JAVA_VERSION: '18'
   JAVA_DISTRIBUTION: 'temurin'
   JRE_VERSION: '18.0.7'
-  # JPACKAGE: 'jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name Kokcinelo --main-jar Kokcinelo.jar --main-class fr.formiko.launcherjar.Main --app-version $(cat version.md) --description "Launcher of Kokcinelo" --license-file LICENSE.md  --vendor Hydrolien --runtime-image jlink/'
 
 
 runs:
@@ -49,7 +48,6 @@ runs:
       java-version: ${{ env.JAVA_VERSION }}
 
   - name: download LauncherJar files
-    if: inputs.launcher-extension!='jar'
     uses: HydrolienF/usual@0.3.8
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip LauncherJar-${{ inputs.launcher-jar-version }}/'
@@ -120,6 +118,7 @@ runs:
     env:
       OS: 'Windows'
     run: |
+      # JPACKAGE: 'jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name Kokcinelo --main-jar Kokcinelo.jar --main-class fr.formiko.launcherjar.Main --app-version $(cat version.md) --description "Launcher of Kokcinelo" --license-file LICENSE.md  --vendor Hydrolien --runtime-image jlink/'
       ${{ env.JPACKAGE }} --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ env.ARTIFACT_NAME }}" -t msi --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b4"
       rm -r in
       cscript tools/addLaunchToMsi.js ${{ inputs.app-version }}
