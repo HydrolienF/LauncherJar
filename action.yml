@@ -55,13 +55,12 @@ runs:
   - name: download LauncherJar files
     uses: HydrolienF/usual@0.3.34
     with:
-      args: 'unzip temp.zip .'
+      args: 'unzip temp.zip /home/runner/work/${{ project-name }}/${{ project-name }}/'
 
   - name: create launcher as .jar
     shell: bash
     if: inputs.launcher-extension=='jar'
     run: |
-      cd ~
       echo ${{ inputs.app-version }} > version.md
       echo ls -------------------------------------
       ls
@@ -79,15 +78,15 @@ runs:
       mkdir out/
 
       mkdir out/$nom
-      echo ls ~ -----------------------------------
-      ls ~
+      echo ls . -----------------------------------
+      ls .
       echo ----------------------------------------
       echo "cp .jar, README.md, LICENSE.md & version.md"
       mv ${{ inputs.project-name }}.jar out/$nom/.
-      cp ~/README* out/$nom/.
-      cp ~/LICENSE* out/$nom/.
+      cp ../README* out/$nom/.
+      cp ../LICENSE* out/$nom/.
       # cp ../version.md out/$nom/.
-      cp ~/.mvn/jvm.config out/$nom/.
+      cp ../.mvn/jvm.config out/$nom/.
       echo ${{ env.JRE_VERSION }} > out/$nom/JREVersion.md
 
       echo "zip part"
@@ -100,8 +99,10 @@ runs:
       echo "-----------------------"
       ls -l out/
       echo "-----------------------"
+      ls ..
+      echo "-----------------------"
       cd ..
-      mv ./LauncherJar-${{ inputs.launcher-jar-version }}/out/${{ inputs.project-name }}Launcher.zip ${{ inputs.project-name }}Launcher.zip
+      mv LauncherJar-${{ inputs.launcher-jar-version }}/out/${{ inputs.project-name }}Launcher.zip ${{ inputs.project-name }}Launcher.zip
 
 
   - name: download jlink/
