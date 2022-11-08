@@ -48,14 +48,14 @@ runs:
       java-version: ${{ env.JAVA_VERSION }}
 
   - name: download LauncherJar files
-    uses: HydrolienF/usual@0.3.34
+    uses: HydrolienF/usual@0.3.36
     with:
       args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
   
   - name: download LauncherJar files
-    uses: HydrolienF/usual@0.3.34
+    uses: HydrolienF/usual@0.3.36
     with:
-      args: 'unzip temp.zip /home/runner/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
+      args: 'unzip temp.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
 
   - name: create launcher as .jar
     shell: bash
@@ -106,16 +106,20 @@ runs:
 
 
   - name: download jlink/
-    shell: bash
+    shell: pwsh
     if: inputs.launcher-extension!='jar'
     run: |
+      $le = ${{ inputs.launcher-extension }}
+      if($le="msi"){ $os="Windows" }
+      if($le="deb"){ $os="Linux" }
+      if($le="dmg"){ $os="Mac" }
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
-      mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j${{ env.OS }}/'
+      mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j$os/'
       ls jlink/
       mv jlink/ ../
 
   - name: download launcher as .zip unziped
-    shell: bash
+    shell: pwsh
     if: inputs.launcher-extension!='jar'
     run: |
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
