@@ -113,8 +113,12 @@ runs:
       if($le="msi"){ $os="Windows" }
       if($le="deb"){ $os="Linux" }
       if($le="dmg"){ $os="Mac" }
+      # TODO a cette étape pout Windows le cd ne marche pas, probablement qu'il n'a pas été unzip ou il faut.
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp compile exec:java -Dargs="downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j$os/"
+      echo "-----------------------"
+      ls
+      echo "-----------------------"
       ls jlink/
       mv jlink/ ../
 
@@ -125,6 +129,9 @@ runs:
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
       mvn -ntp exec:java -Dargs='downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+      echo "-----------------------"
+      ls
+      echo "-----------------------"
       ls in/
       mv in/ ../
 
