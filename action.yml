@@ -114,7 +114,7 @@ runs:
       if($le="deb"){ $os="Linux" }
       if($le="dmg"){ $os="Mac" }
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
-      mvn -ntp compile exec:java -Dargs='downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j$os/'
+      mvn -ntp compile exec:java -Dargs="downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j$os/"
       ls jlink/
       mv jlink/ ../
 
