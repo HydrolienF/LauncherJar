@@ -55,7 +55,7 @@ runs:
   - name: download LauncherJar files
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'unzip temp.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
+      args: 'unzip temp.zip .'
 
   - name: create launcher as .jar
     shell: bash
@@ -120,6 +120,7 @@ runs:
       ls
       echo "-----------------------"
       ls jlink/
+      echo "-----------------------"
       mv jlink/ ../
 
   - name: download launcher as .zip unziped
