@@ -53,9 +53,17 @@ runs:
       args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
   
   - name: download LauncherJar files
+    if: inputs.launcher-extension=='jar'
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
+      
+  - name: download LauncherJar files
+    if: inputs.launcher-extension!='jar'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'unzip temp.zip .'
+
 
   - name: create launcher as .jar
     shell: bash
