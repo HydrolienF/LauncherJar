@@ -57,12 +57,12 @@ runs:
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
-      
+
   - name: download LauncherJar files
     if: inputs.launcher-extension!='jar'
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'unzip temp.zip .'
+      args: 'unzip temp.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/'
 
 
   - name: create launcher as .jar
