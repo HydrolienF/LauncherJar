@@ -47,22 +47,23 @@ runs:
       distribution: ${{ env.JAVA_DISTRIBUTION }}
       java-version: ${{ env.JAVA_VERSION }}
 
+  - name: define main path
+    shell: pwsh
+    id: defineMainPath
+    run: |
+      if(${{ inputs.launcher-extension }}="msi"){ echo "mainPath=D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
+      else { echo "mainPath=$HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
+
+
   - name: download LauncherJar files
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
   
   - name: download LauncherJar files
-    if: inputs.launcher-extension=='jar'
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
-
-  - name: download LauncherJar files
-    if: inputs.launcher-extension!='jar'
-    uses: HydrolienF/usual@0.3.38
-    with:
-      args: 'unzip temp.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/'
+      args: 'unzip temp.zip ${{ steps.defineMainPath.outputs.mainPath }}'
 
 
   - name: create launcher as .jar
@@ -123,7 +124,7 @@ runs:
       if($le="dmg"){ $os="Mac" }
       # TODO a cette étape pout Windows le cd ne marche pas, probablement qu'il n'a pas été unzip ou il faut.
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
-      mvn -ntp compile exec:java -Dargs="downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip jlink/ j$os/"
+      mvn -ntp compile exec:java -Dargs="downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ${{ steps.defineMainPath.outputs.mainPath }}jlink/ j$os/"
       echo "-----------------------"
       ls
       echo "-----------------------"
@@ -137,7 +138,7 @@ runs:
     run: |
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
-      mvn -ntp exec:java -Dargs='downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+      mvn -ntp exec:java -Dargs='downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip ${{ steps.defineMainPath.outputs.mainPath }}in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
       echo "-----------------------"
       ls
       echo "-----------------------"
