@@ -167,9 +167,9 @@ runs:
     env:
       OS: 'Windows'
     run: |
-      $JPACKAGE = 'jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}.jar --main-class fr.formiko.launcherjar.Main --app-version $(cat version.md) --description "Launcher of ${{ inputs.project-name }}" --license-file LICENSE.md  --vendor Hydrolien --runtime-image jlink/'
-      $JPACKAGE --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" -t msi --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b4"
-      rm -r in
+      jpackage = '--java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}.jar --main-class fr.formiko.launcherjar.Main --app-version $(cat version.md) --description "Launcher of ${{ inputs.project-name }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b4"'
+      # rm -r in
       cscript tools/addLaunchToMsi.js ${{ inputs.app-version }}
       echo "======================================================"
       echo "ls"
