@@ -93,7 +93,7 @@ runs:
       mvn -ntp package
       mv target/LauncherJar-${{ inputs.launcher-jar-version }}.jar ${{ inputs.project-name }}.jar
       echo "choose name"
-      nom=${{ inputs.project-name }}${{ inputs.launcher-jar-version }}
+      nom=${{ inputs.project-name }}${{ app-version }}
       if [[ -e out/ ]]; then
         echo "clear out"
         rm out/ -fr
