@@ -149,7 +149,7 @@ runs:
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
-    - name: download launcher as .zip unziped
+  - name: download launcher as .zip unziped
     if: inputs.launcher-extension=='deb' || inputs.launcher-extension=='dmg'
     uses: HydrolienF/usual@0.3.38
     with:
