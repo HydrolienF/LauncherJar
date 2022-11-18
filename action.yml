@@ -126,7 +126,6 @@ runs:
 
 
   - name: download jlink/
-    shell: pwsh
     if: inputs.launcher-extension!='jar'
     uses: HydrolienF/usual@0.3.38
     with:
@@ -145,7 +144,6 @@ runs:
     #   echo "-----------------------"
 
   - name: download launcher as .zip unziped
-    shell: pwsh
     if: inputs.launcher-extension!='jar'
     uses: HydrolienF/usual@0.3.38
     with:
