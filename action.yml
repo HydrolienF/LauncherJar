@@ -61,10 +61,18 @@ runs:
     with:
       args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
   
+  # args is proably choose before steps start, so we can't use result of it.
   - name: unzip LauncherJar files
+    if: inputs.launcher-extension=='msi'
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'unzip temp.zip ${{ steps.defineMainPath.outputs.mainPath }}'
+      args: 'unzip temp.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/'
+
+  - name: unzip LauncherJar files
+    if: inputs.launcher-extension!='msi'
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
 
 
   - name: create launcher as .jar
