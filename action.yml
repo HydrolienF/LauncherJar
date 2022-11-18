@@ -15,6 +15,9 @@ inputs:
   project-name:  # id of input
     description: 'Name of your projet'
     required: true
+  user-name:
+    description: 'Name of the github user account'
+    required: true
   launcher-jar-version:
     description: 'Version of launcher jar'
     required: true
@@ -147,7 +150,7 @@ runs:
     if: inputs.launcher-extension!='jar'
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+      args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
     # run: |
     #   cd LauncherJar-${{ inputs.launcher-jar-version }}/
     #   mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
@@ -179,7 +182,7 @@ runs:
 
   # TODO create mac & linux artifact
 
-  - name: upload artifact
+  - name: upload artifact jar
     if: inputs.launcher-extension=='jar'
     uses: actions/upload-release-asset@v1
     with:
@@ -188,7 +191,7 @@ runs:
       asset_name: ${{ inputs.project-name }}Launcher.zip
       asset_content_type: application/zip
 
-  - name: upload artifact
+  - name: upload artifact else
     if: inputs.launcher-extension!='jar'
     uses: actions/upload-release-asset@v1
     with:
