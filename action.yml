@@ -52,8 +52,10 @@ runs:
     id: defineMainPath
     run: |
       $le = "${{ inputs.launcher-extension }}"
-      if($le -eq "msi"){ echo "mainPath=D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
-      else { echo "mainPath=$HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
+      if($le -eq "msi"){ $mainPath="D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
+      else { $mainPath="~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
+      echo "mainPath=$mainPath" >> $GITHUB_OUTPUT
+      echo $mainPath
 
 
   - name: download LauncherJar files
