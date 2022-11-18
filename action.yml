@@ -51,7 +51,7 @@ runs:
     shell: pwsh
     id: defineMainPath
     run: |
-      if(${{ inputs.launcher-extension }}="msi"){ echo "mainPath=D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
+      if("${{ inputs.launcher-extension }}"="msi"){ echo "mainPath=D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
       else { echo "mainPath=$HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
 
 
