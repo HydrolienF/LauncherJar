@@ -91,7 +91,7 @@ runs:
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.launcher-jar-version }}"
       mvn -ntp package
-      mv target/LauncherJar-${{ inputs.launcher-jar-version }}.jar ${{ inputs.project-name }}.jar
+      mv target/LauncherJar-${{ inputs.launcher-jar-version }}.jar ${{ inputs.project-name }}Launcher.jar
       echo "choose name"
       nom=${{ inputs.project-name }}${{ inputs.app-version }}
       if [[ -e out/ ]]; then
@@ -105,7 +105,7 @@ runs:
       ls .
       echo ----------------------------------------
       echo "cp .jar, README.md, LICENSE.md & version.md"
-      mv ${{ inputs.project-name }}.jar out/$nom/.
+      mv ${{ inputs.project-name }}Launcher.jar out/$nom/.
       cp ../README* out/$nom/.
       cp ../LICENSE* out/$nom/.
       # cp ../version.md out/$nom/.
@@ -173,7 +173,7 @@ runs:
       echo "ls -r jlink/"
       Get-ChildItem -Recurse jlink/
       echo "======================================================"
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
       --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b4"
       # rm -r in
       cscript tools/addLaunchToMsi.js ${{ inputs.app-version }}

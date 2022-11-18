@@ -215,7 +215,7 @@ public class Launcher {
         if (javaCmd != null && makeExecutable(Paths.get(javaCmd))) {
             return javaCmd;
         } else {
-            erreur.alerte("Can't execute " + javaCmd);
+            erreur.alerte("Can't find Java (JRE). You need to have a compatible Java version installed");
         }
         return "java";
     }
