@@ -51,7 +51,8 @@ runs:
     shell: pwsh
     id: defineMainPath
     run: |
-      if("${{ inputs.launcher-extension }}"="msi"){ echo "mainPath=D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
+      $le = "${{ inputs.launcher-extension }}"
+      if($le -eq "msi"){ echo "mainPath=D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
       else { echo "mainPath=$HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/" >> $GITHUB_OUTPUT }
 
 
@@ -119,9 +120,9 @@ runs:
     if: inputs.launcher-extension!='jar'
     run: |
       $le = "${{ inputs.launcher-extension }}"
-      if($le="msi"){ $os="Windows" }
-      if($le="deb"){ $os="Linux" }
-      if($le="dmg"){ $os="Mac" }
+      if($le -eq "msi"){ $os="Windows" }
+      if($le -eq "deb"){ $os="Linux" }
+      if($le -eq "dmg"){ $os="Mac" }
       # TODO a cette étape pout Windows le cd ne marche pas, probablement qu'il n'a pas été unzip ou il faut.
       cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp compile exec:java -Dargs="downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ${{ steps.defineMainPath.outputs.mainPath }}jlink/ j$os/"
