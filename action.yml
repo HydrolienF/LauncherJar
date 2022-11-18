@@ -129,36 +129,32 @@ runs:
 
 
   - name: download jlink/
-    if: inputs.launcher-extension!='jar'
+    if: inputs.launcher-extension=='msi'
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/jlink/ j$os/'
-    # run: |
-    #   $le = "${{ inputs.launcher-extension }}"
-    #   if($le -eq "msi"){ $os="Windows" }
-    #   if($le -eq "deb"){ $os="Linux" }
-    #   if($le -eq "dmg"){ $os="Mac" }
-    #   cd LauncherJar-${{ inputs.launcher-jar-version }}/
-    #   mvn -ntp compile exec:java -Dargs="-logToFile=false downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip $pwd/../jlink/ j$os/"
-    #   echo "-----------------------"
-    #   ls
-    #   echo "-----------------------"
-    #   ls ../jlink/
-    #   echo "-----------------------"
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/jlink/ jWindows/'
+  - name: download jlink/
+    if: inputs.launcher-extension=='deb'
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jLinux/'
+  - name: download jlink/
+    if: inputs.launcher-extension=='msi'
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jMac/'
 
   - name: download launcher as .zip unziped
-    if: inputs.launcher-extension!='jar'
+    if: inputs.launcher-extension=='msi'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
-    # run: |
-    #   cd LauncherJar-${{ inputs.launcher-jar-version }}/
-    #   mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
-    #   mvn -ntp exec:java -Dargs='downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip $pwd/../in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
-    #   echo "-----------------------"
-    #   ls
-    #   echo "-----------------------"
-    #   ls ../in/
+    - name: download launcher as .zip unziped
+    if: inputs.launcher-extension=='deb' || inputs.launcher-extension=='dmg'
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+
 
 
   - name: create msi installer
@@ -173,6 +169,9 @@ runs:
       echo "======================================================"
       echo "ls -r in/"
       Get-ChildItem -Recurse in/
+      echo "======================================================"
+      echo "ls -r jlink/"
+      Get-ChildItem -Recurse jlink/
       echo "======================================================"
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
       --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b4"
