@@ -128,30 +128,36 @@ runs:
   - name: download jlink/
     shell: pwsh
     if: inputs.launcher-extension!='jar'
-    run: |
-      $le = "${{ inputs.launcher-extension }}"
-      if($le -eq "msi"){ $os="Windows" }
-      if($le -eq "deb"){ $os="Linux" }
-      if($le -eq "dmg"){ $os="Mac" }
-      cd LauncherJar-${{ inputs.launcher-jar-version }}/
-      mvn -ntp compile exec:java -Dargs="-logToFile=false downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip $pwd/../jlink/ j$os/"
-      echo "-----------------------"
-      ls
-      echo "-----------------------"
-      ls ../jlink/
-      echo "-----------------------"
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ j$os/'
+    # run: |
+    #   $le = "${{ inputs.launcher-extension }}"
+    #   if($le -eq "msi"){ $os="Windows" }
+    #   if($le -eq "deb"){ $os="Linux" }
+    #   if($le -eq "dmg"){ $os="Mac" }
+    #   cd LauncherJar-${{ inputs.launcher-jar-version }}/
+    #   mvn -ntp compile exec:java -Dargs="-logToFile=false downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip $pwd/../jlink/ j$os/"
+    #   echo "-----------------------"
+    #   ls
+    #   echo "-----------------------"
+    #   ls ../jlink/
+    #   echo "-----------------------"
 
   - name: download launcher as .zip unziped
     shell: pwsh
     if: inputs.launcher-extension!='jar'
-    run: |
-      cd LauncherJar-${{ inputs.launcher-jar-version }}/
-      mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
-      mvn -ntp exec:java -Dargs='-logToFile=false downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip $pwd/../in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
-      echo "-----------------------"
-      ls
-      echo "-----------------------"
-      ls ../in/
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+    # run: |
+    #   cd LauncherJar-${{ inputs.launcher-jar-version }}/
+    #   mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
+    #   mvn -ntp exec:java -Dargs='downloadAndUnzip ${{ inputs.release-url }}${{ inputs.project-name }}Launcher.zip $pwd/../in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+    #   echo "-----------------------"
+    #   ls
+    #   echo "-----------------------"
+    #   ls ../in/
 
 
   - name: create msi installer
