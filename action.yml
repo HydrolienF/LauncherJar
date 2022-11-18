@@ -150,7 +150,7 @@ runs:
     if: inputs.launcher-extension!='jar'
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
+      args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
     # run: |
     #   cd LauncherJar-${{ inputs.launcher-jar-version }}/
     #   mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
