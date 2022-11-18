@@ -61,7 +61,7 @@ runs:
     with:
       args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
   
-  - name: download LauncherJar files
+  - name: unzip LauncherJar files
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'unzip temp.zip ${{ steps.defineMainPath.outputs.mainPath }}'
