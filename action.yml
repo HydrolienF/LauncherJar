@@ -28,12 +28,20 @@ inputs:
     description: 'dollar{{ steps.create_release.outputs.upload_url }} from your action so that this action can add artifacts'
     required: true
   app-version:
-    description: 'version of the app & of the launcher'
+    description: 'Version of the app & of the launcher'
     required: true
+  uuid:
+    description: 'Universally unique identifier for your app on Windows & Mac'
+    required: false
+    default: ''
   launcher-extension:
-    description: 'the launcher extention: jar, msi, deb or dmg'
+    description: 'The launcher extention: jar, exe, deb or dmg'
     required: false
     default: jar
+  deb-maintainer-email:
+    description: 'Email of the deb maintainer on Linux'
+    required: false
+    default: '...@gmail.com'
 
 env:
   JAVA_VERSION: '18'
@@ -55,7 +63,7 @@ runs:
     id: defineMainPath
     run: |
       $le = "${{ inputs.launcher-extension }}"
-      if($le -eq "msi"){ $mainPath="D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
+      if($le -eq "exe"){ $mainPath="D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
       else { $mainPath="~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
       echo "mainPath=$mainPath" >> $GITHUB_OUTPUT
       echo $mainPath
@@ -68,13 +76,13 @@ runs:
   
   # args is proably choose before steps start, so we can't use result of it.
   - name: unzip LauncherJar files
-    if: inputs.launcher-extension=='msi'
+    if: inputs.launcher-extension=='exe'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'unzip temp.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/'
 
   - name: unzip LauncherJar files
-    if: inputs.launcher-extension!='msi'
+    if: inputs.launcher-extension!='exe'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
@@ -129,7 +137,7 @@ runs:
 
 
   - name: download jlink/
-    if: inputs.launcher-extension=='msi'
+    if: inputs.launcher-extension=='exe'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/jlink/ jWindows/'
@@ -139,13 +147,13 @@ runs:
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jLinux/'
   - name: download jlink/
-    if: inputs.launcher-extension=='msi'
+    if: inputs.launcher-extension=='deb'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jMac/'
 
   - name: download launcher as .zip unziped
-    if: inputs.launcher-extension=='msi'
+    if: inputs.launcher-extension=='exe'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
@@ -157,37 +165,62 @@ runs:
 
 
 
-  - name: create msi installer
+  - name: create exe installer
     shell: pwsh
-    if: inputs.launcher-extension=='msi'
+    if: inputs.launcher-extension=='exe'
     env:
       OS: 'Windows'
     run: |
-      echo "======================================================"
-      echo "ls"
-      ls
-      echo "======================================================"
-      echo "ls -r in/"
-      Get-ChildItem -Recurse in/
-      echo "======================================================"
-      echo "ls -r jlink/"
-      Get-ChildItem -Recurse jlink/
-      echo "======================================================"
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "1468751e-078f-4fab-80e4-fa15e9b364b4"
-      # rm -r in
+      echo "Create exe installer"
+      # echo "======================================================"
+      # echo "ls"
+      # ls
+      # echo "======================================================"
+      # echo "ls -r in/"
+      # Get-ChildItem -Recurse in/
+      # echo "======================================================"
+      # echo "ls -r jlink/"
+      # Get-ChildItem -Recurse jlink/
+      # echo "======================================================"
+      # 1a line is the same for every OS, 2a is personalized by OS.
+      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}""
       # TODO fix addLaunchToMsi.js
-      cscript tools/addLaunchToMsi.js ${{ inputs.project-name }} ${{ inputs.app-version }}
+      # cscript tools/addLaunchToMsi.js ${{ inputs.project-name }}-${{ inputs.app-version }}
+      mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.exe ${{ inputs.project-name }}.exe
       echo "======================================================"
       echo "ls"
       ls
       echo "======================================================"
-      echo "ls out/"
-      ls out/
-      echo "======================================================"
-      mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.msi ${{ inputs.project-name }}.msi
 
-  # TODO create mac & linux artifact
+  - name: create deb installer
+    shell: pwsh
+    if: inputs.launcher-extension=='deb'
+    env:
+      OS: 'Linux'
+    run: |
+      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      --icon tools/icon.png --linux-package-name ${{ inputs.project-name }} --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games
+      #  --resource-dir tools/debRessources/
+      echo "======================================================"
+      echo "ls"
+      ls
+      echo "======================================================"
+
+  - name: create dmg installer
+    shell: pwsh
+    if: inputs.launcher-extension=='dmg'
+    env:
+      OS: 'Mac'
+    run: |
+      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      --icon tools/icon.icns --mac-package-name ${{ inputs.project-name }} --mac-package-identifier "${{ inputs.uuid }}"
+      echo "======================================================"
+      echo "ls"
+      ls
+      echo "======================================================"
+
+
 
   - name: upload artifact jar
     if: inputs.launcher-extension=='jar'
@@ -207,12 +240,6 @@ runs:
       asset_name: ${{ inputs.project-name }}.${{ inputs.launcher-extension }}
       asset_content_type: application/${{ inputs.launcher-extension }}
 
-
-  # TODO for each OS:
-  # download jlink/
-  # download launcherJar.zip
-  # use jpackage
-  # upload artifact
 
 
 
