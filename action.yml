@@ -208,14 +208,23 @@ runs:
       OS: 'Mac'
     run: |
       echo "Create dmg installer"
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      # Force 1a version number to be 1 for mac (Mac don't accept 0 as 1a version number).
+      $appVersion = ${{ inputs.app-version }}
+      if($appVersion[0] -eq '0'){
+        $appVersion = '1'+$appVersion.Substring(1, $appVersion.length-1)
+      }
+      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version $appVersion --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
       --icon tools/icon.icns --mac-package-name $("${{ inputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
 
   - name: mv & ls after create installer
     shell: pwsh
     if: inputs.launcher-extension!='jar'
     run: |
-      mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.${{ inputs.launcher-extension }} ${{ inputs.project-name }}.${{ inputs.launcher-extension }}
+      echo "======================================================"
+      echo "ls out"
+      ls out
+      echo "======================================================"
+      mv ./out/${{ inputs.project-name }}*.${{ inputs.launcher-extension }} ${{ inputs.project-name }}.${{ inputs.launcher-extension }}
       echo "======================================================"
       echo "ls"
       ls
