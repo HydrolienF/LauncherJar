@@ -147,7 +147,7 @@ runs:
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jLinux/'
   - name: download jlink/
-    if: inputs.launcher-extension=='deb'
+    if: inputs.launcher-extension=='dmg'
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jMac/'
@@ -164,56 +164,9 @@ runs:
       args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
 
 
-
-  - name: create exe installer
+  - name: ls before create installer
     shell: pwsh
-    if: inputs.launcher-extension=='exe'
-    env:
-      OS: 'Windows'
     run: |
-      echo "Create exe installer"
-      # echo "======================================================"
-      # echo "ls"
-      # ls
-      # echo "======================================================"
-      # echo "ls -r in/"
-      # Get-ChildItem -Recurse in/
-      # echo "======================================================"
-      # echo "ls -r jlink/"
-      # Get-ChildItem -Recurse jlink/
-      # echo "======================================================"
-      # 1a line is the same for every OS, 2a is personalized by OS.
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}"
-      # TODO fix addLaunchToMsi.js
-      # cscript tools/addLaunchToMsi.js ${{ inputs.project-name }}-${{ inputs.app-version }}
-      mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.exe ${{ inputs.project-name }}.exe
-      echo "======================================================"
-      echo "ls"
-      ls
-      echo "======================================================"
-
-  - name: create deb installer
-    shell: pwsh
-    if: inputs.launcher-extension=='deb'
-    env:
-      OS: 'Linux'
-    run: |
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.png --linux-package-name $("${{ inputs.project-name }}".ToLower()) --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games
-      #  --resource-dir tools/debRessources/
-      echo "======================================================"
-      echo "ls"
-      ls
-      echo "======================================================"
-
-  - name: create dmg installer
-    shell: pwsh
-    if: inputs.launcher-extension=='dmg'
-    env:
-      OS: 'Mac'
-    run: |
-      echo "Create dmg installer"
       echo "======================================================"
       echo "ls"
       ls
@@ -224,8 +177,43 @@ runs:
       echo "ls -r jlink/"
       Get-ChildItem -Recurse jlink/
       echo "======================================================"
+
+  - name: create exe installer
+    shell: pwsh
+    if: inputs.launcher-extension=='exe'
+    env:
+      OS: 'Windows'
+    run: |
+      # 1a line is the same for every OS, 2a is personalized by OS.
+      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}"
+      # TODO fix addLaunchToMsi.js
+      # cscript tools/addLaunchToMsi.js ${{ inputs.project-name }}-${{ inputs.app-version }}
+
+  - name: create deb installer
+    shell: pwsh
+    if: inputs.launcher-extension=='deb'
+    env:
+      OS: 'Linux'
+    run: |
+      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
+      --icon tools/icon.png --linux-package-name $("${{ inputs.project-name }}".ToLower()) --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games
+      #  --resource-dir tools/debRessources/
+
+  - name: create dmg installer
+    shell: pwsh
+    if: inputs.launcher-extension=='dmg'
+    env:
+      OS: 'Mac'
+    run: |
+      echo "Create dmg installer"
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
       --icon tools/icon.icns --mac-package-name $("${{ inputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
+
+  - name: mv & ls after create installer
+    shell: pwsh
+    run: |
+      mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.${{ inputs.launcher-extension }} ${{ inputs.project-name }}.${{ inputs.launcher-extension }}
       echo "======================================================"
       echo "ls"
       ls
