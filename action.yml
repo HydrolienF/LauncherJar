@@ -184,7 +184,7 @@ runs:
       # echo "======================================================"
       # 1a line is the same for every OS, 2a is personalized by OS.
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}""
+      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}"
       # TODO fix addLaunchToMsi.js
       # cscript tools/addLaunchToMsi.js ${{ inputs.project-name }}-${{ inputs.app-version }}
       mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.exe ${{ inputs.project-name }}.exe
@@ -200,7 +200,7 @@ runs:
       OS: 'Linux'
     run: |
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.png --linux-package-name ${{ inputs.project-name }} --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games
+      --icon tools/icon.png --linux-package-name $("${{ inputs.project-name }}".ToLower()) --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games
       #  --resource-dir tools/debRessources/
       echo "======================================================"
       echo "ls"
@@ -213,8 +213,19 @@ runs:
     env:
       OS: 'Mac'
     run: |
+      echo "Create dmg installer"
+      echo "======================================================"
+      echo "ls"
+      ls
+      echo "======================================================"
+      echo "ls -r in/"
+      Get-ChildItem -Recurse in/
+      echo "======================================================"
+      echo "ls -r jlink/"
+      Get-ChildItem -Recurse jlink/
+      echo "======================================================"
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.icns --mac-package-name ${{ inputs.project-name }} --mac-package-identifier "${{ inputs.uuid }}"
+      --icon tools/icon.icns --mac-package-name $("${{ inputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
       echo "======================================================"
       echo "ls"
       ls
