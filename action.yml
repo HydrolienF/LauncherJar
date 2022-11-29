@@ -209,7 +209,7 @@ runs:
     run: |
       echo "Create dmg installer"
       # Force 1a version number to be 1 for mac (Mac don't accept 0 as 1a version number).
-      $appVersion = ${{ inputs.app-version }}
+      $appVersion = "${{ inputs.app-version }}"
       if($appVersion[0] -eq '0'){
         $appVersion = '1'+$appVersion.Substring(1, $appVersion.length-1)
       }
