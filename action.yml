@@ -197,9 +197,28 @@ runs:
     env:
       OS: 'Linux'
     run: |
+      $packageName = echo $("${{ inputs.project-name }}".ToLower())
+      mkdir debRessources/
+      cp tools/icon.png debRessources/
+      echo "$packageName" > debRessources/launcher.desktop
+      echo """echo 'chmod'
+      chmod -R 777 /opt/$packageName/
+      echo 'Create shortcut. You can launch ${{ inputs.project-name }} in cmd line with:'
+      echo $packageName
+      sudo ln -s /opt/$packageName/bin/${{ inputs.project-name }} /bin/$packageName""" > debRessources/postinst
+      echo """echo "remove shortcut"
+      sudo rm -f [ -e /bin/$packageName ] && rm /bin/$packageName
+      echo "remove temp data"
+      sudo rm -f [ -e ~/.$packageName ] && ~/.$packageName
+      """ > postrm
+      echo "======================================================"
+      echo "ls debRessources/"
+      ls debRessources/
+      echo "======================================================"
+      cat debRessources/*
+      echo "======================================================"
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} --runtime-image jlink/ -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.png --linux-package-name $("${{ inputs.project-name }}".ToLower()) --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games
-      #  --resource-dir tools/debRessources/
+      --icon tools/icon.png --linux-package-name $packageName --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir debRessources/
 
   - name: create dmg installer
     shell: pwsh
