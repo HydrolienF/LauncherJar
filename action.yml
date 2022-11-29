@@ -166,6 +166,7 @@ runs:
 
   - name: ls before create installer
     shell: pwsh
+    if: inputs.launcher-extension!='jar'
     run: |
       echo "======================================================"
       echo "ls"
@@ -212,6 +213,7 @@ runs:
 
   - name: mv & ls after create installer
     shell: pwsh
+    if: inputs.launcher-extension!='jar'
     run: |
       mv ./out/${{ inputs.project-name }}-${{ inputs.app-version }}.${{ inputs.launcher-extension }} ${{ inputs.project-name }}.${{ inputs.launcher-extension }}
       echo "======================================================"
