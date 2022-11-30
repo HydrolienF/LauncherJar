@@ -215,7 +215,7 @@ public class Launcher {
         if (javaCmd != null && makeExecutable(Paths.get(javaCmd))) {
             return javaCmd;
         } else {
-            erreur.alerte("Can't find Java (JRE). You need to have a compatible Java version installed");
+            erreur.alerte("Can't find Java (JRE) at "+pathToJava+". You need to have a compatible Java version installed");
         }
         return "java";
     }
@@ -229,9 +229,9 @@ public class Launcher {
         if (Os.getOs().isWindows()) {
             return System.getenv("ProgramFiles") + "/" + projectName + "/runtime/";
         } else if (Os.getOs().isLinux()) {
-            return "/opt/" + projectName + "/lib/runtime/";
+            return "/opt/" + projectName.toLowerCase() + "/lib/runtime/";
         } else if (Os.getOs().isMac()) {
-            return "/Applications/" + projectName + ".app/Contents/runtime/Contents/Home/";
+            return "/Applications/" + projectName.toLowerCase() + ".app/Contents/runtime/Contents/Home/";
         }
         return "";
     }
@@ -244,9 +244,9 @@ public class Launcher {
         if (Os.getOs().isWindows()) {
             return System.getenv("ProgramFiles") + "/" + projectName + "/app/";
         } else if (Os.getOs().isLinux()) {
-            return "/opt/" + projectName + "/lib/app/";
+            return "/opt/" + projectName.toLowerCase() + "/lib/app/";
         } else if (Os.getOs().isMac()) {
-            return "/Applications/" + projectName + ".app/Content/app/";
+            return "/Applications/" + projectName.toLowerCase() + ".app/Content/app/";
         }
         return "";
     }
