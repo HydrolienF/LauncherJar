@@ -227,11 +227,11 @@ public class Launcher {
      */
     public String getPathToLauncherFilesRuntime() {
         if (Os.getOs().isWindows()) {
-            return System.getenv("ProgramFiles") + "/" + projetLauncherName + "/runtime/";
+            return System.getenv("ProgramFiles") + "/" + projectName + "/runtime/";
         } else if (Os.getOs().isLinux()) {
-            return "/opt/" + projetLauncherName + "/lib/runtime/";
+            return "/opt/" + projectName + "/lib/runtime/";
         } else if (Os.getOs().isMac()) {
-            return "/Applications/" + projetLauncherName + ".app/Contents/runtime/Contents/Home/";
+            return "/Applications/" + projectName + ".app/Contents/runtime/Contents/Home/";
         }
         return "";
     }
@@ -242,11 +242,11 @@ public class Launcher {
      */
     public String getPathToLauncherFilesApp() {
         if (Os.getOs().isWindows()) {
-            return System.getenv("ProgramFiles") + "/" + projetLauncherName + "/app/";
+            return System.getenv("ProgramFiles") + "/" + projectName + "/app/";
         } else if (Os.getOs().isLinux()) {
-            return "/opt/" + projetLauncherName + "/lib/app/";
+            return "/opt/" + projectName + "/lib/app/";
         } else if (Os.getOs().isMac()) {
-            return "/Applications/" + projetLauncherName + ".app/Content/app/";
+            return "/Applications/" + projectName + ".app/Content/app/";
         }
         return "";
     }
