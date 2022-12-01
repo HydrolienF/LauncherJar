@@ -224,27 +224,30 @@ public class Launcher {
      * @return path launcher files depending of the Os
      */
     public String getPathToLauncherFilesRuntime() {
-        if (Os.getOs().isWindows()) {
-            return System.getenv("ProgramFiles") + "/" + projectName + "/runtime/";
-        } else if (Os.getOs().isLinux()) {
-            return "/opt/" + projectName.toLowerCase() + "/lib/runtime/";
-        } else if (Os.getOs().isMac()) {
-            return "/Applications/" + projectName.toLowerCase() + ".app/Contents/runtime/Contents/Home/";
+        if (Os.getOs().isMac()) {
+            return getPathToLauncherFiles() + "runtime/Contents/Home/";
+        } else {
+            return getPathToLauncherFiles() + "runtime/";
         }
-        return "";
     }
-    /**
+    /***
      * {@summary Give path to launcher files ressources.}<br>
      * 
      * @return path launcher files depending of the Os
      */
-    public String getPathToLauncherFilesApp() {
+    public String getPathToLauncherFilesApp() { return getPathToLauncherFiles() + "app/"; }
+    /**
+     * {@summary Give path to launcher files.}<br>
+     * 
+     * @return path launcher files depending of the Os
+     */
+    public String getPathToLauncherFiles() {
         if (Os.getOs().isWindows()) {
-            return System.getenv("ProgramFiles") + "/" + projectName + "/app/";
+            return System.getenv("ProgramFiles") + "/" + projectName + "/";
         } else if (Os.getOs().isLinux()) {
-            return "/opt/" + projectName.toLowerCase() + "/lib/app/";
+            return "/opt/" + projectName.toLowerCase() + "/lib/";
         } else if (Os.getOs().isMac()) {
-            return "/Applications/" + projectName.toLowerCase() + ".app/Content/app/";
+            return "/Applications/" + projectName.toLowerCase() + ".app/Content/";
         }
         return "";
     }
