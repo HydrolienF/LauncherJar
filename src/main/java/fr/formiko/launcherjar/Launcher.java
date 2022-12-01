@@ -70,7 +70,7 @@ public class Launcher {
         } else if (lastAppVersion.equals(currentAppVersion)) {
             erreur.info("No need to download, User have " + currentAppVersion + " that is last version");
         } else {
-            erreur.alerte("Download game from" + currentAppVersion + "to" + lastAppVersion);
+            erreur.alerte("Download game from " + currentAppVersion + " to " + lastAppVersion);
             downloadGame(lastAppVersion);
             currentAppVersion = lastAppVersion;
         }
@@ -156,10 +156,10 @@ public class Launcher {
                 pb.directory(new File(System.getProperty("user.home")));
             }
 
-            File parentLog = new File(getFolderTemporary());
+            File parentLog = new File(getPathToTemporaryFolder());
             parentLog.mkdirs();
             if (Main.logToFile && parentLog.exists()) {
-                File fout = new File(getFolderTemporary() + "log.txt");
+                File fout = new File(getPathToTemporaryFolder() + "log.txt");
                 try {
                     pb.redirectOutput(Redirect.appendTo(fout));
                     erreur.info("All info, error & alerte are redirected to " + fout.getCanonicalPath());
@@ -197,6 +197,7 @@ public class Launcher {
         }
     }
 
+    private String getPathToTemporaryFolder() { return getFolderTemporary(); }
     private String getPathToJarFolder() { return getFolderGameJar(); }
     /**
      * {@summary Give path to projectName.jar.}<br>
@@ -324,7 +325,7 @@ public class Launcher {
         justGetVersion = true;
         launchGame();
         justGetVersion = false;
-        File fout = new File(getFolderTemporary() + "log.txt");
+        File fout = new File(getPathToTemporaryFolder() + "log.txt");
         String lastLine = "";
         for (String line : ReadFile.readFileList(fout)) {
             if (line.length() > 1 && line.charAt(0) != '[') {
@@ -339,13 +340,12 @@ public class Launcher {
      * @return last aviable jar version
      */
     private String getLastAppVersion() {
-        File parentLog = new File(getMainFolder("tempLauncherJar"));
-        parentLog.mkdirs();
-        File ftemp = new File(getMainFolder("tempLauncherJar") + "temp.json");
+        File fi = new File(getPathToTemporaryFolder());
+        fi.mkdirs();
+        File ftemp = new File(getPathToTemporaryFolder() + "temp.json");
         String url = "https://api.github.com/repos/" + userName + "/" + projectName + "/releases/latest";
         try {
             fichier.download(url, ftemp.getCanonicalPath());
-            fichier.deleteDirectory(parentLog);
             return getXVersion(Paths.get(ftemp.getCanonicalPath()), "tag_name");
         } catch (IOException e) {
             erreur.erreur("Fail to download lastVersionInfo");
@@ -376,18 +376,18 @@ public class Launcher {
         }
     }
 
-    private String getMainFolder(String dotHideFolder) {
+    private String getMainFolder() {
         if (mainFolder == null) {
             if (Os.getOs().isWindows()) {
                 mainFolder = System.getenv("APPDATA");
             } else {
                 mainFolder = System.getProperty("user.home");
             }
-            mainFolder += "/." + dotHideFolder + "/";
+            mainFolder += "/." + projectName.toLowerCase() + "/";
         }
         return mainFolder;
     }
-    private String getMainFolder() { return getMainFolder(projectName.toLowerCase()); }
+
     private String getFolderGameJar() { return getMainFolder() + "game/"; }
     private String getFolderTemporary() { return getMainFolder() + "temp/"; }
 
