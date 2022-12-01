@@ -93,6 +93,12 @@ runs:
     if: inputs.launcher-extension=='jar'
     run: |
       echo ${{ inputs.app-version }} > version.md
+      echo '''
+      {
+          "userName": "${{ inputs.user-name }}",
+          "projectName": "${{ inputs.project-name }}"
+      }
+      ''' > settings.json
       echo ls -------------------------------------
       ls
       echo ----------------------------------------

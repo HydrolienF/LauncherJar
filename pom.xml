@@ -184,5 +184,13 @@
         </configuration>
       </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>.</directory>
+        <includes>
+          <include>settings.json</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>

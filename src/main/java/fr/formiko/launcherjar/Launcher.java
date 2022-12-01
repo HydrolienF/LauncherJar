@@ -6,8 +6,11 @@ import fr.formiko.usual.ReadFile;
 import fr.formiko.usual.color;
 import fr.formiko.usual.erreur;
 import fr.formiko.usual.fichier;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
@@ -21,8 +24,8 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 
 public class Launcher {
     private Process pr;
-    private String userName = "HydrolienF";
-    private String projectName = "Kokcinelo";
+    private String userName;
+    private String projectName;
     private List<String> args;
     private Progression progression;
     private String currentAppVersion;
@@ -34,6 +37,22 @@ public class Launcher {
         pr = null;
         this.args = args;
         color.iniColor();
+        try {
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream("settings.json");
+            Reader reader = new BufferedReader(new InputStreamReader(is));
+            JsonObject parser = (JsonObject) Jsoner.deserialize(reader);
+            userName = (String) parser.get("userName");
+            if (userName == null) {
+                erreur.erreur("can't read userName from " + reader);
+            }
+            projectName = (String) parser.get("projectName");
+            if (projectName == null) {
+                erreur.erreur("can't read projectName from " + reader);
+            }
+        } catch (Exception e) {
+            erreur.erreur("can't read data from launcher settings, catch " + e);
+        }
+        erreur.info("Create a Launcher for " + projectName);
     }
 
 
@@ -122,7 +141,7 @@ public class Launcher {
                 }
             }
 
-            erreur.info("commande launch: ");
+            erreur.info("command launch: ");
             for (String s : cmd) {
                 erreur.print(s + " ");
             }
@@ -168,12 +187,11 @@ public class Launcher {
         // userWantToDownloadNextVersion = true;
         // return true;
         // }
-        // default: {
-        // erreur.info("exit code " + pr.exitValue());
-        // return false;
-        // }
+        default: {
+            erreur.info("exit code " + pr.exitValue());
+            return false;
         }
-        return false; // don't restart launcher
+        }
     }
 
     private String getPathToTemporaryFolder() { return getFolderTemporary(); }
@@ -307,7 +325,7 @@ public class Launcher {
         File fout = new File(getPathToTemporaryFolder() + "log.txt");
         String lastLine = "";
         for (String line : ReadFile.readFileList(fout)) {
-            if (line.length() > 1) {
+            if (line.length() > 1 && line.charAt(0) != '[') {
                 lastLine = line;
             }
         }
@@ -360,7 +378,7 @@ public class Launcher {
             } else {
                 mainFolder = System.getProperty("user.home");
             }
-            mainFolder += "." + projectName.toLowerCase() + "/";
+            mainFolder += "/." + projectName.toLowerCase() + "/";
         }
         return mainFolder;
     }
