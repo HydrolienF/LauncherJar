@@ -1,6 +1,5 @@
 package fr.formiko.launcherjar;
 
-import fr.formiko.usual.Folder;
 import fr.formiko.usual.Os;
 import fr.formiko.usual.Progression;
 import fr.formiko.usual.ReadFile;
@@ -24,18 +23,17 @@ public class Launcher {
     private Process pr;
     private String userName = "HydrolienF";
     private String projectName = "Kokcinelo";
-    private String projetLauncherName;
     private List<String> args;
     private Progression progression;
     private String currentAppVersion;
     private String lastAppVersion;
     private boolean justGetVersion = false;
+    private String mainFolder;
 
     public Launcher(List<String> args) {
         pr = null;
         this.args = args;
         color.iniColor();
-        projetLauncherName = projectName + "Launcher";
     }
 
 
@@ -70,9 +68,9 @@ public class Launcher {
      * @return true if it work
      */
     public boolean downloadGame(String version) {
-        erreur.info("download Formiko" + version + " from " + getDownloadURL(version) + " to " + getJarPath());
+        erreur.info("download " + projectName + " " + version + " from " + getDownloadURL(version) + " to " + getJarPath());
         getProgression().iniLauncher();
-        File fi = new File(Folder.getFolder().getFolderGameJar());
+        File fi = new File(getFolderGameJar());
         fi.mkdirs();
         boolean itWork = fichier.download(getDownloadURL(version), getJarPath(), true);
         return itWork;
@@ -178,12 +176,12 @@ public class Launcher {
         return false; // don't restart launcher
     }
 
-    private String getPathToTemporaryFolder() { return Folder.getFolder().getFolderTemporary(); }
-    private String getPathToJarFolder() { return Folder.getFolder().getFolderGameJar(); }
+    private String getPathToTemporaryFolder() { return getFolderTemporary(); }
+    private String getPathToJarFolder() { return getFolderGameJar(); }
     /**
-     * {@summary Give path to Formiko.jar.}<br>
+     * {@summary Give path to projectName.jar.}<br>
      * 
-     * @return path to Formiko.jar depending of the Os
+     * @return path to projectName.jar depending of the Os
      */
     public String getJarPath() { return getPathToJarFolder() + projectName + ".jar"; }
 
@@ -215,7 +213,7 @@ public class Launcher {
         if (javaCmd != null && makeExecutable(Paths.get(javaCmd))) {
             return javaCmd;
         } else {
-            erreur.alerte("Can't find Java (JRE) at "+pathToJava+". You need to have a compatible Java version installed");
+            erreur.alerte("Can't find Java (JRE) at " + pathToJava + ". You need to have a compatible Java version installed");
         }
         return "java";
     }
@@ -351,6 +349,20 @@ public class Launcher {
             return "0.0.0";
         }
     }
+
+    private String getMainFolder() {
+        if (mainFolder == null) {
+            if (Os.getOs().isWindows()) {
+                mainFolder = System.getenv("APPDATA");
+            } else {
+                mainFolder = System.getProperty("user.home");
+            }
+            mainFolder += "." + projectName.toLowerCase() + "/";
+        }
+        return mainFolder;
+    }
+    private String getFolderGameJar() { return getMainFolder() + "game/"; }
+    private String getFolderTemporary() { return getMainFolder() + "temp/"; }
 
     /**
      * {@summary Getter with lazy initialization.}<br>
