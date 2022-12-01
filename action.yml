@@ -93,16 +93,16 @@ runs:
     if: inputs.launcher-extension=='jar'
     run: |
       echo ${{ inputs.app-version }} > version.md
+      echo ls -------------------------------------
+      ls
+      echo ----------------------------------------
+      cd LauncherJar-${{ inputs.launcher-jar-version }}/
       echo '''
       {
           "userName": "${{ inputs.user-name }}",
           "projectName": "${{ inputs.project-name }}"
       }
       ''' > settings.json
-      echo ls -------------------------------------
-      ls
-      echo ----------------------------------------
-      cd LauncherJar-${{ inputs.launcher-jar-version }}/
       mvn -ntp versions:set -DnewVersion="${{ inputs.launcher-jar-version }}"
       mvn -ntp package
       mv target/LauncherJar-${{ inputs.launcher-jar-version }}.jar ${{ inputs.project-name }}Launcher.jar
