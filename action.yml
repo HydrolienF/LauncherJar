@@ -42,6 +42,10 @@ inputs:
     description: 'Email of the deb maintainer on Linux'
     required: false
     default: '...@gmail.com'
+  gui:
+    description: 'Does donwload show in GUI insted of CLI'
+    required: false
+    default: true
 
 env:
   JAVA_VERSION: '18'
@@ -100,7 +104,8 @@ runs:
       echo '''
       {
           "userName": "${{ inputs.user-name }}",
-          "projectName": "${{ inputs.project-name }}"
+          "projectName": "${{ inputs.project-name }}",
+          "gui": ${{ inputs.gui }},
       }
       ''' > settings.json
       mvn -ntp versions:set -DnewVersion="${{ inputs.launcher-jar-version }}"

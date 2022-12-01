@@ -26,6 +26,7 @@ public class Launcher {
     private Process pr;
     private String userName;
     private String projectName;
+    private boolean gui;
     private List<String> args;
     private Progression progression;
     private String currentAppVersion;
@@ -49,6 +50,7 @@ public class Launcher {
             if (projectName == null) {
                 erreur.erreur("can't read projectName from " + reader);
             }
+            gui = (boolean) parser.get("gui");
         } catch (Exception e) {
             erreur.erreur("can't read data from launcher settings, catch " + e);
         }
@@ -92,6 +94,7 @@ public class Launcher {
         File fi = new File(getFolderGameJar());
         fi.mkdirs();
         boolean itWork = fichier.download(getDownloadURL(version), getJarPath(), true);
+        getProgression().setDownloadingValue(100);
         return itWork;
     }
 
@@ -153,10 +156,10 @@ public class Launcher {
                 pb.directory(new File(System.getProperty("user.home")));
             }
 
-            File parentLog = new File(getPathToTemporaryFolder());
+            File parentLog = new File(getFolderTemporary());
             parentLog.mkdirs();
             if (Main.logToFile && parentLog.exists()) {
-                File fout = new File(getPathToTemporaryFolder() + "log.txt");
+                File fout = new File(getFolderTemporary() + "log.txt");
                 try {
                     pb.redirectOutput(Redirect.appendTo(fout));
                     erreur.info("All info, error & alerte are redirected to " + fout.getCanonicalPath());
@@ -194,7 +197,6 @@ public class Launcher {
         }
     }
 
-    private String getPathToTemporaryFolder() { return getFolderTemporary(); }
     private String getPathToJarFolder() { return getFolderGameJar(); }
     /**
      * {@summary Give path to projectName.jar.}<br>
@@ -322,7 +324,7 @@ public class Launcher {
         justGetVersion = true;
         launchGame();
         justGetVersion = false;
-        File fout = new File(getPathToTemporaryFolder() + "log.txt");
+        File fout = new File(getFolderTemporary() + "log.txt");
         String lastLine = "";
         for (String line : ReadFile.readFileList(fout)) {
             if (line.length() > 1 && line.charAt(0) != '[') {
@@ -337,10 +339,13 @@ public class Launcher {
      * @return last aviable jar version
      */
     private String getLastAppVersion() {
-        File ftemp = new File(getPathToTemporaryFolder() + "temp.json");
+        File parentLog = new File(getMainFolder("tempLauncherJar"));
+        parentLog.mkdirs();
+        File ftemp = new File(getMainFolder("tempLauncherJar") + "temp.json");
         String url = "https://api.github.com/repos/" + userName + "/" + projectName + "/releases/latest";
         try {
             fichier.download(url, ftemp.getCanonicalPath());
+            fichier.deleteDirectory(parentLog);
             return getXVersion(Paths.get(ftemp.getCanonicalPath()), "tag_name");
         } catch (IOException e) {
             erreur.erreur("Fail to download lastVersionInfo");
@@ -371,17 +376,18 @@ public class Launcher {
         }
     }
 
-    private String getMainFolder() {
+    private String getMainFolder(String dotHideFolder) {
         if (mainFolder == null) {
             if (Os.getOs().isWindows()) {
                 mainFolder = System.getenv("APPDATA");
             } else {
                 mainFolder = System.getProperty("user.home");
             }
-            mainFolder += "/." + projectName.toLowerCase() + "/";
+            mainFolder += "/." + dotHideFolder + "/";
         }
         return mainFolder;
     }
+    private String getMainFolder() { return getMainFolder(projectName.toLowerCase()); }
     private String getFolderGameJar() { return getMainFolder() + "game/"; }
     private String getFolderTemporary() { return getMainFolder() + "temp/"; }
 
@@ -390,7 +396,11 @@ public class Launcher {
      */
     public Progression getProgression() {
         if (progression == null) {
-            progression = new ProgressionCLI();
+            if (gui) {
+                progression = new ProgressionGUI();
+            } else {
+                progression = new ProgressionCLI();
+            }
         }
         return progression;
     }
