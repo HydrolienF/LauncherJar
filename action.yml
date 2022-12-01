@@ -216,12 +216,12 @@ runs:
       chmod -R 777 /opt/$packageName/
       echo 'Create shortcut. You can launch ${{ inputs.project-name }} in cmd line with:'
       echo $packageName
-      sudo rm -f [ -e /bin/$packageName ] && rm /bin/$packageName
+      sudo rm -f /bin/$packageName
       sudo ln -s /opt/$packageName/bin/${{ inputs.project-name }} /bin/$packageName" > debRessources/postinst
       echo "echo 'remove shortcut'
-      sudo rm -f [ -e /bin/$packageName ] && rm /bin/$packageName
+      sudo rm -f /bin/$packageName
       echo 'remove temp data'
-      sudo rm -f [ -e ~/.$packageName ] && ~/.$packageName" > debRessources/postrm
+      sudo rm -f ~/.$packageName" > debRessources/postrm
       echo "======================================================"
       echo "ls debRessources/"
       ls debRessources/
