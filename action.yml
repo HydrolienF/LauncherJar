@@ -221,7 +221,7 @@ runs:
       echo "echo 'remove shortcut'
       sudo rm -f /bin/$packageName
       echo 'remove temp data'
-      sudo rm -f ~/.$packageName" > debRessources/postrm
+      sudo rm -fr ~/.$packageName" > debRessources/postrm
       echo "======================================================"
       echo "ls debRessources/"
       ls debRessources/
