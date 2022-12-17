@@ -13,4 +13,4 @@ Icon are png for Linux, ico for Windows & icns for Mac. You can provide the 3 fi
 
 Check [a simple project using LauncherJar](https://github.com/HydrolienF/Infanlaboro) if you need help.
 
-Exemple use auto version tool based on branch name that should be 0.1, 0.2, 0.3, 1.1, 1.2 etc
+Example use auto version tool based on branch name that should be 0.1, 0.2, 0.3, 1.1, 1.2 etc
