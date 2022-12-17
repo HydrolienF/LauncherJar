@@ -15,4 +15,4 @@ Check [a simple project using LauncherJar](https://github.com/HydrolienF/Infanla
 
 Example use auto version tool based on branch name that should be 0.1, 0.2, 0.3, 1.1, 1.2 etc
 
-Your app need to return it's version when launching with --version or -v
+Your app need to return it's version when launching with --version or -version
