@@ -122,18 +122,19 @@ runs:
         echo "clear out"
         rm out/ -fr
       fi
-      mkdir out/
 
-      mkdir out/$nom
+      mkdir -p out/$nom
       echo ls . -----------------------------------
       ls .
+      echo ls out/$nom -----------------------------------
+      ls 
       echo ----------------------------------------
       echo "cp .jar, README, LICENSE"
       mv ${{ inputs.project-name }}Launcher.jar out/$nom/.
       cp ../README* out/$nom/.
       cp ../LICENSE* out/$nom/.
       # cp ../version.md out/$nom/.
-      file=../.mvn/jvm.config out/$nom/.
+      file=../.mvn/jvm.config
       if test -f "$file"; then
         cp ../.mvn/jvm.config out/$nom/.
       fi
