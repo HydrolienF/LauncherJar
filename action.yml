@@ -49,8 +49,8 @@ inputs:
   runTimeImage:
     description: 'If define to "--runtime-image jlink/", it include only usefull module.'
     required: false
-    # default: '--runtime-image jlink/'
-    default : ''
+    default: '--runtime-image jlink/'
+    # default : ''
 
 env:
   JAVA_VERSION: '18'
