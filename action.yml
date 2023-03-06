@@ -51,11 +51,14 @@ inputs:
     required: false
     default: '--runtime-image jlink/'
     # default : ''
+  JRE_VERSION: 
+    description: 'JRE version to use'
+    required: false
+    default: '18.0.8f'
 
 env:
   JAVA_VERSION: '18'
   JAVA_DISTRIBUTION: 'temurin'
-  JRE_VERSION: '18.0.8f'
 
 
 runs:
@@ -138,7 +141,7 @@ runs:
       if test -f "$file"; then
         cp ../.mvn/jvm.config out/$nom/.
       fi
-      echo ${{ env.JRE_VERSION }} > out/$nom/JREVersion.md
+      echo ${{ inputs.JRE_VERSION }} > out/$nom/JREVersion.md
 
       echo "zip part"
       cd out/
@@ -160,17 +163,17 @@ runs:
     if: inputs.launcher-extension=='exe' && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/jlink/ jWindows/'
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/jlink/ jWindows/'
   - name: download jlink/
     if: inputs.launcher-extension=='deb'  && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jLinux/'
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jLinux/'
   - name: download jlink/
     if: inputs.launcher-extension=='dmg' && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ env.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jMac/'
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jMac/'
 
   - name: download launcher as .zip unziped
     if: inputs.launcher-extension=='exe'
