@@ -55,7 +55,7 @@ inputs:
 env:
   JAVA_VERSION: '18'
   JAVA_DISTRIBUTION: 'temurin'
-  JRE_VERSION: '18.0.7'
+  JRE_VERSION: '18.0.8f'
 
 
 runs:
