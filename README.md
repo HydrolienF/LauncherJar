@@ -16,3 +16,5 @@ Check [a simple project using LauncherJar](https://github.com/HydrolienF/Infanla
 Example use auto version tool based on branch name that should be 0.1, 0.2, 0.3, 1.1, 1.2 etc
 
 Your app need to return it's version when launching with --version or -version
+
+You need to give Read and write permissions in Workflow permissions for the github action that use that at https://github.com/You/ProjectName/settings/actions
