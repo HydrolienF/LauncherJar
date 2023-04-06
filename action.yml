@@ -55,6 +55,10 @@ inputs:
     description: 'JRE version to use'
     required: false
     default: '18.0.8f'
+  LAUNCH_AFTER_INSTALL:
+    description: 'If true launch app after install'
+    required: false
+    default: true
 
 env:
   JAVA_VERSION: '18'
@@ -202,6 +206,22 @@ runs:
       # Get-ChildItem -Recurse jlink/
       # echo "======================================================"
 
+  - name: winRessources/
+    shell: pwsh
+    if: inputs.launcher-extension=='exe'
+    env:
+      OS: 'Windows'
+    run: mkdir winRessources
+
+
+  - name: launch after install
+    if: inputs.launcher-extension=='exe' && LAUNCH_AFTER_INSTALL
+    uses: HydrolienF/usual@0.3.38
+    uses: HydrolienF/usual@0.3.38
+    with:
+      args: 'download https://gist.githubusercontent.com/HydrolienF/97a6c94a0016adab590b55180b437712/raw/main.wxs D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/winRessources/main.wxs'
+
+
   - name: create exe installer
     shell: pwsh
     if: inputs.launcher-extension=='exe'
@@ -210,7 +230,7 @@ runs:
     run: |
       # 1a line is the same for every OS, 2a is personalized by OS.
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}"
+      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
       # TODO fix addLaunchToMsi.js
       # cscript tools/addLaunchToMsi.js ${{ inputs.project-name }}-${{ inputs.app-version }}
 
