@@ -230,8 +230,6 @@ runs:
       # 1a line is the same for every OS, 2a is personalized by OS.
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
       --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
-      # TODO fix addLaunchToMsi.js
-      # cscript tools/addLaunchToMsi.js ${{ inputs.project-name }}-${{ inputs.app-version }}
 
   - name: create deb installer
     shell: pwsh
