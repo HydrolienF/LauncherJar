@@ -217,7 +217,6 @@ runs:
   - name: launch after install
     if: inputs.launcher-extension=='exe' && LAUNCH_AFTER_INSTALL
     uses: HydrolienF/usual@0.3.38
-    uses: HydrolienF/usual@0.3.38
     with:
       args: 'download https://gist.githubusercontent.com/HydrolienF/97a6c94a0016adab590b55180b437712/raw/main.wxs D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/winRessources/main.wxs'
 
