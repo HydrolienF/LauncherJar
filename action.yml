@@ -35,7 +35,7 @@ inputs:
     required: false
     default: ''
   launcher-extension:
-    description: 'The launcher extention: jar, exe, deb or dmg'
+    description: 'The launcher extention: jar, exe, msi, deb, rpm, dmg, or pkg'
     required: false
     default: jar
   deb-maintainer-email:
@@ -78,8 +78,8 @@ runs:
     shell: pwsh
     id: defineMainPath
     run: |
-      $le = "${{ inputs.launcher-extension }}"
-      if($le -eq "exe"){ $mainPath="D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
+      $ros = "${{ runner.os }}"
+      if($ros -eq "Windows"){ $mainPath="D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
       else { $mainPath="~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/" }
       echo "mainPath=$mainPath" >> $GITHUB_OUTPUT
       echo $mainPath
@@ -90,15 +90,15 @@ runs:
     with:
       args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
   
-  # args is proably choose before steps start, so we can't use result of it.
+  # args is probably choose before steps start, so we can't use result of it.
   - name: unzip LauncherJar files
-    if: inputs.launcher-extension=='exe'
+    if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension)
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'unzip temp.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/'
 
   - name: unzip LauncherJar files
-    if: inputs.launcher-extension!='exe'
+    if: contains(fromJSON('["jar", "deb", "rpm", "dmg", "pkg"]'), inputs.launcher-extension)
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
@@ -164,28 +164,28 @@ runs:
 
 
   - name: download jlink/
-    if: inputs.launcher-extension=='exe' && inputs.runTimeImage!=''
+    if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension) && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/jlink/ jWindows/'
   - name: download jlink/
-    if: inputs.launcher-extension=='deb'  && inputs.runTimeImage!=''
+    if: contains(fromJSON('["deb", "rpm"]'), inputs.launcher-extension)  && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jLinux/'
   - name: download jlink/
-    if: inputs.launcher-extension=='dmg' && inputs.runTimeImage!=''
+    if: contains(fromJSON('["dmg", "pkg"]'), inputs.launcher-extension) && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}//jlink/ jMac/'
 
   - name: download launcher as .zip unziped
-    if: inputs.launcher-extension=='exe'
+    if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension)
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
   - name: download launcher as .zip unziped
-    if: inputs.launcher-extension=='deb' || inputs.launcher-extension=='dmg'
+    if: contains(fromJSON('["deb", "rpm", "dmg", "pkg"]'), inputs.launcher-extension)
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'downloadAndUnzip https://github.com/${{ inputs.user-name }}/${{ inputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ inputs.project-name }}Launcher.zip ~/work/${{ inputs.project-name }}/${{ inputs.project-name }}/in/ ${{ inputs.project-name }}${{ inputs.app-version }}/'
@@ -208,22 +208,22 @@ runs:
 
   - name: winRessources/
     shell: pwsh
-    if: inputs.launcher-extension=='exe'
+    if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension)
     env:
       OS: 'Windows'
     run: mkdir winRessources
 
 
   - name: launch after install
-    if: inputs.launcher-extension=='exe' && inputs.LAUNCH_AFTER_INSTALL
+    if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension) && inputs.LAUNCH_AFTER_INSTALL
     uses: HydrolienF/usual@0.3.38
     with:
       args: 'download https://gist.githubusercontent.com/HydrolienF/97a6c94a0016adab590b55180b437712/raw/main.wxs D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/winRessources/main.wxs'
 
 
-  - name: create exe installer
+  - name: create ${{ inputs.launcher-extension }} installer
     shell: pwsh
-    if: inputs.launcher-extension=='exe'
+    if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension)
     env:
       OS: 'Windows'
     run: |
@@ -231,9 +231,9 @@ runs:
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
       --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
 
-  - name: create deb installer
+  - name: create ${{ inputs.launcher-extension }} installer
     shell: pwsh
-    if: inputs.launcher-extension=='deb'
+    if: contains(fromJSON('["deb", "rpm"]'), inputs.launcher-extension)
     env:
       OS: 'Linux'
     run: |
@@ -264,13 +264,13 @@ runs:
       jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
       --icon tools/icon.png --linux-package-name $packageName --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir debRessources/
 
-  - name: create dmg installer
+  - name: create ${{ inputs.launcher-extension }} installer
     shell: pwsh
-    if: inputs.launcher-extension=='dmg'
+    if: contains(fromJSON('["dmg", "pkg"]'), inputs.launcher-extension)
     env:
       OS: 'Mac'
     run: |
-      echo "Create dmg installer"
+      echo "Create ${{ inputs.launcher-extension }} installer"
       # Force 1a version number to be 1 for mac (Mac don't accept 0 as 1a version number).
       $appVersion = "${{ inputs.app-version }}"
       if($appVersion[0] -eq '0'){
