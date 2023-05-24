@@ -17,4 +17,7 @@ Example use auto version tool based on branch name that should be 0.1, 0.2, 0.3,
 
 Your app need to return it's version when launching with --version or -version
 
+If your App return code >=100 it will have effect on launcher :
+- 100: App will be restarted
+
 You need to give Read and write permissions in Workflow permissions for the github action that use that at https://github.com/You/ProjectName/settings/actions

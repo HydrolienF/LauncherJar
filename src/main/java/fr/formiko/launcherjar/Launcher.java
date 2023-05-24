@@ -108,7 +108,7 @@ public class Launcher {
     public boolean launchGame() {
         // set up the command and parameter
         String jvmConfig = getJVMConfig();
-        String javaArgs[] = null;
+        String[] javaArgs = null;
         if (jvmConfig != null) {
             javaArgs = jvmConfig.split("\n")[0].split(" ");
         }
@@ -117,13 +117,13 @@ public class Launcher {
         }
         List<String> args;
         if (justGetVersion) {
-            args = new ArrayList<String>();
+            args = new ArrayList<>();
             args.add("--version");
         } else {
-            if (this.args != null && this.args.size() > 0 && this.args.get(0) != null && this.args.get(0).length() > 0) {
+            if (this.args != null && !this.args.isEmpty() && this.args.get(0) != null && this.args.get(0).length() > 0) {
                 args = this.args;
             } else {
-                args = new ArrayList<String>();
+                args = new ArrayList<>();
             }
             args.add("-launchFromLauncher");
         }
@@ -185,15 +185,25 @@ public class Launcher {
         } catch (InterruptedException e) {
             erreur.erreur("Process have been interrupted");
         }
-        switch (pr.exitValue()) {
-        // case 2: {
-        // userWantToDownloadNextVersion = true;
-        // return true;
-        // }
-        default: {
-            erreur.info("exit code " + pr.exitValue());
-            return false;
+        int exitValue = pr.exitValue();
+        erreur.info("exit code " + exitValue);
+
+        switch (exitValue) {
+            case 100: {
+                return true; // restart game
+            }
+            default: {
+                return false;
+            }
         }
+    }
+
+    /**
+     * {@summary launch the game while it ask to restart.}
+     */
+    public void launchGameWithRestart() {
+        while (launchGame()) {
+            erreur.info("Restarting game");
         }
     }
 
@@ -220,12 +230,7 @@ public class Launcher {
             if (f.exists()) {
                 javaCmd = f.toString();
             }
-        } else if (Os.getOs().isLinux()) {
-            File f = new File(pathToJava);
-            if (f.exists()) {
-                javaCmd = f.toString();
-            }
-        } else if (Os.getOs().isMac()) {
+        } else if (Os.getOs().isLinux() || Os.getOs().isMac()) {
             File f = new File(pathToJava);
             if (f.exists()) {
                 javaCmd = f.toString();

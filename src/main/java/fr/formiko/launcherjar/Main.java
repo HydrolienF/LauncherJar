@@ -5,16 +5,14 @@ import java.util.Arrays;
 
 public class Main {
     public static boolean logToFile;
-    private static Launcher launcher;
-    // private static boolean launchGame;
     public static void main(String[] args) {
         // launchGame = true;
         logToFile = true;
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(args));
-        launcher = new Launcher(list);
+        Launcher launcher = new Launcher(list);
         launcher.iniSettings();
         launcher.downloadInGUIIfNeeded(); // GUI will be hide when download will be over
-        launcher.launchGame();
+        launcher.launchGameWithRestart();
     }
 }
