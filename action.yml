@@ -43,7 +43,7 @@ inputs:
     required: false
     default: '...@gmail.com'
   gui:
-    description: 'Does donwload show in GUI insted of CLI'
+    description: 'Does download show in GUI insted of CLI'
     required: false
     default: true
   runTimeImage:
