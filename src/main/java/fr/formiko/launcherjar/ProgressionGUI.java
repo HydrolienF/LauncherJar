@@ -2,6 +2,7 @@ package fr.formiko.launcherjar;
 
 import fr.formiko.usual.Progression;
 import fr.formiko.usual.fichier;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JFrame;
@@ -38,6 +39,7 @@ class ProgressionGUI implements Progression {
                 progressBar.setMaximum(100);
                 progressBar.setValue(0);
                 progressBar.setPreferredSize(new Dimension(300, 20));
+                progressBar.setForeground(Color.GREEN);
                 frame.getContentPane().add(progressBar);
 
                 frame.pack();
