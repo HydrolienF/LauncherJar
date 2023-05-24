@@ -34,6 +34,14 @@ public class Launcher {
     private boolean justGetVersion = false;
     private String mainFolder;
 
+    public Launcher(List<String> args, String userName, String projectName, boolean gui) {
+        this.args = args;
+        this.userName = userName;
+        this.projectName = projectName;
+        this.gui = gui;
+        color.iniColor();
+    }
+
     public Launcher(List<String> args) {
         pr = null;
         this.args = args;
