@@ -225,8 +225,21 @@ runs:
     shell: pwsh
     if: inputs.launcher-extension!='jar'
     run: |
-      mv in/jvm.config .
-      mv in/icon* .
+      if (!(Test-Path "jvm.config")) {
+        mv in/jvm.config .
+      }
+      if (!(Test-Path "icon.png")) {
+        mv in/icon.png .
+      }
+      if (!(Test-Path "icon.ico")) {
+        mv in/icon.ico .
+      }
+      if (!(Test-Path "icon.icns")) {
+        mv in/icon.icns .
+      }
+      if (!(Test-Path "LICENSE.md")) {
+        cp in/LICENSE.md .
+      }
       echo "======================================================"
       echo "ls"
       ls
