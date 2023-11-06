@@ -122,9 +122,10 @@ runs:
 
   - name: Create icon from png version
     shell: pwsh
-    if: inputs.launcher-extension!='jar'
+    if: inputs.launcher-extension=='jar'
     run: |
       if (!(Test-Path "icon.ico") || !(Test-Path "icon.icns")) {
+        sudo apt install libfuse2
         wget https://imagemagick.org/archive/binaries/magick
         chmod 777 magick
         if (!(Test-Path "icon.ico")) {
