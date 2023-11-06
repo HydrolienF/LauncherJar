@@ -173,10 +173,8 @@ runs:
       cp ../README* out/$nom/.
       cp ../LICENSE* out/$nom/.
       # cp ../version.md out/$nom/.
-      file=../jvm.config
-      if test -f "$file"; then
-        cp ../jvm.config out/$nom/.
-      fi
+      cp ../jvm.config out/$nom/.
+      cp ../icon* out/$nom/.
       echo ${{ inputs.JRE_VERSION }} > out/$nom/JREVersion.md
 
       echo "zip part"
