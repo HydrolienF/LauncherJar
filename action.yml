@@ -114,7 +114,7 @@ runs:
         New-Item LICENSE.md
       }
       if (!(Test-Path "jvm.config")) {
-        New-Item jvm.config
+        "-XX:+UseZGC -XX:MinHeapSize=512m -XX:SoftMaxHeapSize=2G -XX:MaxRAMPercentage=90" | Out-File -FilePath "jvm.config"
       }
       if (!(Test-Path "icon.png")) {
         cp LauncherJar-${{ inputs.launcher-jar-version }}/icon.png .
