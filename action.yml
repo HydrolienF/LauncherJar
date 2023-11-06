@@ -103,6 +103,37 @@ runs:
     with:
       args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
 
+  - name: Create missing config file README, LICENSE, jvm.config, icon.png
+    shell: pwsh
+    if: inputs.launcher-extension=='jar'
+    run: |
+      if (!(Test-Path "README*")) {
+        New-Item README.md
+      }
+      if (!(Test-Path "LICENSE*")) {
+        New-Item LICENSE.md
+      }
+      if (!(Test-Path "jvm.config")) {
+        New-Item jvm.config
+      }
+      if (!(Test-Path "icon.png")) {
+        cp LauncherJar-${{ inputs.launcher-jar-version }}/icon.png .
+      }
+
+  - name: Create icon from png version
+    shell: pwsh
+    if: inputs.launcher-extension!='jar'
+    run: |
+      if (!(Test-Path "icon.ico") || !(Test-Path "icon.icns")) {
+        wget https://imagemagick.org/archive/binaries/magick
+        chmod 777 magick
+        if (!(Test-Path "icon.ico")) {
+          ./magick -background transparent "icon.png" "icon.ico"
+        }
+        if (!(Test-Path "icon.icns")) {
+          ./magick "icon.png" "icon.icns"
+        }
+      }
 
   - name: create launcher as .jar
     shell: bash
@@ -136,14 +167,14 @@ runs:
       echo ls out/$nom -----------------------------------
       ls 
       echo ----------------------------------------
-      echo "cp .jar, README, LICENSE"
+      echo "cp .jar, README, LICENSE, version & jvm.config"
       mv ${{ inputs.project-name }}Launcher.jar out/$nom/.
       cp ../README* out/$nom/.
       cp ../LICENSE* out/$nom/.
       # cp ../version.md out/$nom/.
-      file=../.mvn/jvm.config
+      file=../jvm.config
       if test -f "$file"; then
-        cp ../.mvn/jvm.config out/$nom/.
+        cp ../jvm.config out/$nom/.
       fi
       echo ${{ inputs.JRE_VERSION }} > out/$nom/JREVersion.md
 
@@ -228,8 +259,8 @@ runs:
       OS: 'Windows'
     run: |
       # 1a line is the same for every OS, 2a is personalized by OS.
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      --icon icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
 
   - name: create ${{ inputs.launcher-extension }} installer
     shell: pwsh
@@ -239,7 +270,7 @@ runs:
     run: |
       $packageName = echo $("${{ inputs.project-name }}".ToLower())
       mkdir debRessources/
-      cp tools/icon.png debRessources/
+      cp icon.png debRessources/
       echo "$packageName" > debRessources/launcher.desktop
       echo "echo 'chmod'
       chmod -R 777 /opt/$packageName/
@@ -261,8 +292,8 @@ runs:
       echo "======================================================"
       cat debRessources/postrm
       echo "======================================================"
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.png --linux-package-name $packageName --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir debRessources/
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      --icon icon.png --linux-package-name $packageName --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir debRessources/
 
   - name: create ${{ inputs.launcher-extension }} installer
     shell: pwsh
@@ -276,8 +307,8 @@ runs:
       if($appVersion[0] -eq '0'){
         $appVersion = '1'+$appVersion.Substring(1, $appVersion.length-1)
       }
-      jpackage --java-options "$(cat .mvn/jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version $appVersion --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
-      --icon tools/icon.icns --mac-package-name $("${{ inputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version $appVersion --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      --icon icon.icns --mac-package-name $("${{ inputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
 
   - name: mv & ls after create installer
     shell: pwsh

@@ -2,20 +2,21 @@
 
 Currently it need to have some file on the project:
 - README.md
+
+Optionals files are:
 - LICENSE.md
 - CHANGELOG.md
-- .mvn/jvm.config
-- tools/icon.png
-- tools/icon.ico
-- tools/icon.icns
+- jvm.config
+- icon.png
+- icon.ico
+- icon.icns
 
 Icon are png for Linux, ico for Windows & icns for Mac. You can provide the 3 files icons or just some.
+LauncherJar will create a .ico & a .icns from the .png if the files are missing.
 
-Check [a simple project using LauncherJar](https://github.com/HydrolienF/Infanlaboro) if you need help.
+Check [a simple project using LauncherJar](https://github.com/HydrolienF/LauncherJarExample) if you need help.
 
-Example use auto version tool based on branch name that should be 0.1, 0.2, 0.3, 1.1, 1.2 etc
-
-Your app need to return it's version when launching with --version or -version
+Your app need to return it's version when launching with `--version` or `-version`.
 
 If your App return code >=100 it will have effect on launcher :
 - 100: App will be restarted
