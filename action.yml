@@ -171,7 +171,7 @@ runs:
       echo "cp .jar, README, LICENSE, version & jvm.config"
       mv ${{ inputs.project-name }}Launcher.jar out/$nom/.
       cp ../README* out/$nom/.
-      cp ../LICENSE* out/$nom/.
+      cp ../LICENSE* out/$nom/LICENSE.md
       # cp ../version.md out/$nom/.
       cp ../jvm.config out/$nom/.
       cp ../icon* out/$nom/.
@@ -260,7 +260,7 @@ runs:
       OS: 'Windows'
     run: |
       # 1a line is the same for every OS, 2a is personalized by OS.
-      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
       --icon icon.ico --win-shortcut --win-menu --win-menu-group "${{ inputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
 
   - name: create ${{ inputs.launcher-extension }} installer
@@ -293,7 +293,7 @@ runs:
       echo "======================================================"
       cat debRessources/postrm
       echo "======================================================"
-      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
       --icon icon.png --linux-package-name $packageName --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir debRessources/
 
   - name: create ${{ inputs.launcher-extension }} installer
@@ -308,7 +308,7 @@ runs:
       if($appVersion[0] -eq '0'){
         $appVersion = '1'+$appVersion.Substring(1, $appVersion.length-1)
       }
-      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version $appVersion --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE*  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ inputs.project-name }} --main-jar ${{ inputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version $appVersion --description "Launcher of ${{ inputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ inputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
       --icon icon.icns --mac-package-name $("${{ inputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
 
   - name: mv & ls after create installer
