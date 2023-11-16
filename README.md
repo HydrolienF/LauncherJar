@@ -12,7 +12,7 @@ Optionals files are:
 Icon are png for Linux, ico for Windows & icns for Mac. You can provide the 3 files icons or just some.
 LauncherJar will create a .ico & a .icns from the .png if the files are missing.
 
-Check [a simple project using LauncherJar](https://github.com/HydrolienF/LauncherJarExample) if you need help.
+Check [a simple project using LauncherJar](https://github.com/HydrolienF/LauncherJarExample) if you need help. If you use libgdx you can check [a simple libgdx project using LauncherJar](https://github.com/HydrolienF/LauncherJarLibgdxExample).
 
 Your app need to return it's version when launching with `--version`.
 
