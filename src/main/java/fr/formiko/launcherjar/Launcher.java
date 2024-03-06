@@ -41,6 +41,7 @@ public class Launcher {
         this.gui = gui;
         color.iniColor();
     }
+    public Launcher(List<String> args, String userName, String projectName) { this(args, userName, projectName, true); }
 
     public Launcher(List<String> args) {
         pr = null;
@@ -58,7 +59,7 @@ public class Launcher {
             if (projectName == null) {
                 erreur.erreur("can't read projectName from " + reader);
             }
-            gui = (boolean) parser.get("gui");
+            gui = parser.containsKey("gui") ? (boolean) parser.get("gui") : true;
         } catch (Exception e) {
             erreur.erreur("can't read data from launcher settings, catch " + e);
         }
