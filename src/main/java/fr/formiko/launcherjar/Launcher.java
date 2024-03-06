@@ -8,6 +8,7 @@ import fr.formiko.usual.erreur;
 import fr.formiko.usual.fichier;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,8 +49,15 @@ public class Launcher {
         this.args = args;
         color.iniColor();
         try {
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("settings.json");
-            Reader reader = new BufferedReader(new InputStreamReader(is));
+            initGameToLaunchSettings(this.getClass().getClassLoader().getResourceAsStream("settings.json"));
+        } catch (Exception e) {
+            erreur.erreur("can't read data from launcher settings, catch " + e);
+        }
+        erreur.info("Create a Launcher for " + projectName);
+    }
+
+    private void initGameToLaunchSettings(InputStream is) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             JsonObject parser = (JsonObject) Jsoner.deserialize(reader);
             userName = (String) parser.get("userName");
             if (userName == null) {
@@ -63,7 +71,7 @@ public class Launcher {
         } catch (Exception e) {
             erreur.erreur("can't read data from launcher settings, catch " + e);
         }
-        erreur.info("Create a Launcher for " + projectName);
+        erreur.info("Change launcher param for " + projectName);
     }
 
 
@@ -200,6 +208,16 @@ public class Launcher {
         switch (exitValue) {
             case 100: {
                 return true; // restart game
+            }
+            case 101: {
+                // Launch game from new settings location.
+                try {
+                    initGameToLaunchSettings(new FileInputStream(getLauncherJarFolder() + "settings.json"));
+                    Main.setFullRestart(true);
+                } catch (Exception e) {
+                    erreur.erreur("can't read data from launcher settings, catch " + e);
+                }
+                return false;
             }
             default: {
                 return false;
@@ -359,6 +377,7 @@ public class Launcher {
         File ftemp = new File(getPathToTemporaryFolder() + "temp.json");
         String url = "https://api.github.com/repos/" + userName + "/" + projectName + "/releases/latest";
         try {
+            // TODO do not save the file on disc
             fichier.download(url, ftemp.getCanonicalPath());
             return getXVersion(Paths.get(ftemp.getCanonicalPath()), "tag_name");
         } catch (IOException e) {
@@ -390,14 +409,13 @@ public class Launcher {
         }
     }
 
+    private String getAllGamesFolder() { return Os.getOs().isWindows() ? System.getenv("APPDATA") : System.getProperty("user.home"); }
+
+    private String getLauncherJarFolder() { return getAllGamesFolder() + "/.launcherjar/"; }
+
     private String getMainFolder() {
         if (mainFolder == null) {
-            if (Os.getOs().isWindows()) {
-                mainFolder = System.getenv("APPDATA");
-            } else {
-                mainFolder = System.getProperty("user.home");
-            }
-            mainFolder += "/." + projectName.toLowerCase() + "/";
+            mainFolder = getAllGamesFolder() + "/." + projectName.toLowerCase() + "/";
         }
         return mainFolder;
     }
