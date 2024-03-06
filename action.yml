@@ -54,15 +54,19 @@ inputs:
   JRE_VERSION: 
     description: 'JRE version to use'
     required: false
-    default: '18.0.8f'
+    default: '21.0.1'
   LAUNCH_AFTER_INSTALL:
     description: 'If true launch app after install'
     required: false
     default: true
-
-env:
-  JAVA_VERSION: '18'
-  JAVA_DISTRIBUTION: 'temurin'
+  JAVA_VERSION:
+    description: 'Java version to use'
+    required: false
+    default: '21'
+  JAVA_DISTRIBUTION:
+    description: 'Java distribution to use'
+    required: false
+    default: 'temurin'
 
 
 runs:
@@ -71,8 +75,8 @@ runs:
 
   - uses: actions/setup-java@v3
     with:
-      distribution: ${{ env.JAVA_DISTRIBUTION }}
-      java-version: ${{ env.JAVA_VERSION }}
+      distribution: ${{ inputs.JAVA_DISTRIBUTION }}
+      java-version: ${{ inputs.JAVA_VERSION }}
 
   - name: define main path
     shell: pwsh

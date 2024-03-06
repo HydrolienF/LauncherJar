@@ -5,7 +5,7 @@
   <groupId>fr.formiko.launcherjar</groupId>
   <artifactId>LauncherJar</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <name>LauncherJar</name>
   <description>Launcher and Installer for any jar file</description>
   <url>https://formiko.fr</url>
@@ -13,7 +13,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <java.version>18</java.version>
+    <java.version>21</java.version>
     <app.main.class>fr.formiko.launcherjar.Main</app.main.class>
     <app.distribution.directory>${project.build.directory}/distributions/app</app.distribution.directory>
   </properties>
@@ -96,7 +96,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.8</version>
+        <version>0.8.11</version>
         <executions>
           <execution>
             <goals>
