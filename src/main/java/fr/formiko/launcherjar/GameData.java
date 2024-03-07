@@ -1,5 +1,6 @@
 package fr.formiko.launcherjar;
 
+import fr.formiko.usual.erreur;
 import java.util.Map;
 
 public class GameData {
@@ -15,8 +16,19 @@ public class GameData {
         this.firstTimePlayed = firstTimePlayed;
     }
     public GameData(Map<String, Object> map) {
-        this((String) map.get("version"), (long) map.get("playedTime"), (long) map.get("lastTimePlayed"),
-                (long) map.get("firstTimePlayed"));
+        this((String) map.get("version"), toLong(map.get("playedTime")), toLong(map.get("lastTimePlayed")),
+                toLong(map.get("firstTimePlayed")));
+    }
+
+    /**
+     * @MGMU approved
+     */
+    public static long toLong(Object o) {
+        if (o instanceof Number n) {
+            return n.longValue();
+        }
+        erreur.erreur("Not a number: " + o);
+        return 0L;
     }
 
     public String getVersion() { return version; }
