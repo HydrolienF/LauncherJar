@@ -6,13 +6,13 @@ import fr.formiko.usual.ReadFile;
 import fr.formiko.usual.color;
 import fr.formiko.usual.erreur;
 import fr.formiko.usual.fichier;
+import fr.formiko.utils.FLUFiles;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,8 +57,8 @@ public class Launcher {
         yaml = new Yaml();
         color.iniColor();
         try {
-            initGameToLaunchSettings(this.getClass().getClassLoader().getResourceAsStream("settings.json"));
-            // initGameToLaunchSettings(new FileInputStream(getLauncherJarFolder() + "gameToLaunch.json"));
+            // initGameToLaunchSettings(this.getClass().getClassLoader().getResourceAsStream("settings.json"));
+            initGameToLaunchSettings(new FileInputStream(getLauncherJarFolder() + "gameToLaunch.json"));
         } catch (Exception e) {
             erreur.erreur("can't read data from launcher settings, catch " + e);
         }
@@ -118,6 +118,7 @@ public class Launcher {
             return true;
         } catch (Exception e) {
             erreur.erreur("Can't save settings because " + e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -417,32 +418,26 @@ public class Launcher {
      * @return last aviable jar version
      */
     private String getLastAppVersion() {
-        File fi = new File(getPathToTemporaryFolder());
-        fi.mkdirs();
-        File ftemp = new File(getPathToTemporaryFolder() + "temp.json");
         String url = "https://api.github.com/repos/" + userName + "/" + projectName + "/releases/latest";
-        try {
-            // TODO do not save the file on disc
-            fichier.download(url, ftemp.getCanonicalPath());
-            return getXVersion(Paths.get(ftemp.getCanonicalPath()), "tag_name");
-        } catch (IOException e) {
+        String content = FLUFiles.readFileFromWeb(url);
+        if (content == null || content.isEmpty()) {
             erreur.erreur("Fail to download lastVersionInfo");
+            return null;
         }
-        return null;
+        return getXVersion(content, "tag_name");
     }
 
     /**
      * {@summary Return the version from path &#38; name of the wanted version.}<br>
      * If it fail, it will return a defaut version.
      * 
-     * @param pathToJson       path to the .json file taht containt version
+     * @param content          content of the .json file that containt version
      * @param nameOfTheVersion name of the version
      * @return a version String as 1.49.12
      */
-    public String getXVersion(Path pathToJson, String nameOfTheVersion) {
+    public String getXVersion(String content, String nameOfTheVersion) {
         try {
-            Reader reader = Files.newBufferedReader(pathToJson);
-            JsonObject parser = (JsonObject) Jsoner.deserialize(reader);
+            JsonObject parser = (JsonObject) Jsoner.deserialize(content);
             String version = (String) parser.get(nameOfTheVersion);
             if (version == null) {
                 erreur.alerte("can't read " + nameOfTheVersion + " version");
@@ -478,16 +473,16 @@ public class Launcher {
     private Map<String, Map<String, GameData>> getGameDataMap() {
         File downloadedGames = getDownloadedGamesDataFile();
         try (InputStream in = new FileInputStream(downloadedGames)) {
-            Map<String, Map<String, GameData>> listOfGames = yaml.load(in);
-            // Map<String, Map<String, Map<String, Object>>> listOfGamesIn = yaml.load(in);
-            // Map<String, Map<String, GameData>> listOfGames = new HashMap<>();
-            // for (Map.Entry<String, Map<String, Map<String, Object>>> user : listOfGamesIn.entrySet()) {
-            // Map<String, GameData> gamesData = new HashMap<>();
-            // for (Map.Entry<String, Map<String, Object>> game : user.getValue().entrySet()) {
-            // gamesData.put(game.getKey(), new GameData(game.getValue()));
-            // }
-            // listOfGames.put(user.getKey(), gamesData);
-            // }
+            // Map<String, Map<String, GameData>> listOfGames = yaml.load(in);
+            Map<String, Map<String, Map<String, Object>>> listOfGamesIn = yaml.load(in);
+            Map<String, Map<String, GameData>> listOfGames = new HashMap<>();
+            for (Map.Entry<String, Map<String, Map<String, Object>>> user : listOfGamesIn.entrySet()) {
+                Map<String, GameData> gamesData = new HashMap<>();
+                for (Map.Entry<String, Map<String, Object>> game : user.getValue().entrySet()) {
+                    gamesData.put(game.getKey(), new GameData(game.getValue()));
+                }
+                listOfGames.put(user.getKey(), gamesData);
+            }
             return listOfGames;
         } catch (Exception e) {
             erreur.erreur("Can't read " + downloadedGames + " because " + e);
