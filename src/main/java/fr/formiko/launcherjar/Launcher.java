@@ -10,7 +10,6 @@ import fr.formiko.utils.FLUFiles;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ProcessBuilder.Redirect;
@@ -453,23 +452,21 @@ public class Launcher {
 
     private String getLauncherJarFolder() { return getAllGamesFolder() + "/.launcherjar/"; }
     private File getLauncherJarFile(String fileName) {
-        File folder = new File(getLauncherJarFolder());
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        File downloadedGames = new File(folder, fileName);
-        if (!downloadedGames.exists()) {
-            try {
-                downloadedGames.createNewFile();
-                saveDefaultSettings();
-            } catch (IOException e) {
+        String fullFileName = getLauncherJarFolder() + fileName;
+        File dataFile = new File(fullFileName);
+        if (!dataFile.exists()) {
+            if (FLUFiles.createFile(fullFileName)) {
+                erreur.info("Create " + fileName);
+            } else {
                 erreur.erreur("Can't create " + fileName);
             }
         }
-        return downloadedGames;
+        return dataFile;
+        // saveDefaultSettings();
     }
     private File getDownloadedGamesDataFile() { return getLauncherJarFile("downloadedGames.yml"); }
     private File getAvailableGamesDataFile() { return getLauncherJarFile("availableGames.yml"); }
+    private File getGameToLaunchDataFile() { return getLauncherJarFile("gameToLaunch.json"); }
     private Map<String, Map<String, GameData>> getGameDataMap() {
         File downloadedGames = getDownloadedGamesDataFile();
         try (InputStream in = new FileInputStream(downloadedGames)) {
