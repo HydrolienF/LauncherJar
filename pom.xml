@@ -47,6 +47,16 @@
       <artifactId>usual</artifactId>
       <version>0.3.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <dependency>
+	    <groupId>com.github.FormikoLudo</groupId>
+	    <artifactId>Utils</artifactId>
+	    <version>0.0.4</version>
+	  </dependency>
   </dependencies>
 
   <build>

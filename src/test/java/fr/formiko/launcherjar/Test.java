@@ -11,5 +11,6 @@ public class Test {
         launcher.iniSettings();
         launcher.downloadInGUIIfNeeded(); // GUI will be hide when download will be over
         launcher.launchGameWithRestart();
+        launcher.saveSettings();
     }
 }

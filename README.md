@@ -18,5 +18,6 @@ Your app need to return it's version when launching with `--version`.
 
 If your App return code >=100 it will have effect on launcher :
 - 100: App will be restarted
+- 101: The game set in .launcherjar/ will be started
 
 You need to give Read and write permissions in Workflow permissions for the github action that use that at https://github.com/You/ProjectName/settings/actions
