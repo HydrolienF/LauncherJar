@@ -5,7 +5,7 @@
   <groupId>fr.formiko.launcherjar</groupId>
   <artifactId>LauncherJar</artifactId>
   <packaging>jar</packaging>
-  <version>0.4.0</version>
+  <version>0.4.1</version>
   <name>LauncherJar</name>
   <description>Launcher and Installer for any jar file</description>
   <url>https://formiko.fr</url>
