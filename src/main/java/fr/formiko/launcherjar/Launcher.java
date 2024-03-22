@@ -56,10 +56,14 @@ public class Launcher {
         yaml = new Yaml();
         color.iniColor();
         try {
-            // initGameToLaunchSettings(this.getClass().getClassLoader().getResourceAsStream("settings.json"));
-            initGameToLaunchSettings(new FileInputStream(getLauncherJarFolder() + "gameToLaunch.json"));
+            initGameToLaunchSettings(this.getClass().getClassLoader().getResourceAsStream("settings.json"));
         } catch (Exception e) {
-            erreur.erreur("can't read data from launcher settings, catch " + e);
+            erreur.erreur("can't read data from launcher settings in jar, catch " + e);
+            try {
+                initGameToLaunchSettings(new FileInputStream(getLauncherJarFolder() + "gameToLaunch.json"));
+            } catch (Exception e2) {
+                erreur.erreur("can't read data from launcher settings on ./launcherjar/, catch " + e2);
+            }
         }
         erreur.info("Create a Launcher for " + projectName);
     }
