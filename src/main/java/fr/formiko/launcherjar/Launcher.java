@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonException;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 
@@ -34,6 +36,7 @@ public class Launcher {
     private Progression progression;
     private String currentAppVersion;
     private String lastAppVersion;
+    private String downloadUrl;
     private boolean justGetVersion = false;
     private Map<String, Map<String, GameData>> gamesData;
     private Yaml yaml;
@@ -91,7 +94,7 @@ public class Launcher {
         timeStarted = System.currentTimeMillis();
         gamesData = getGameDataMap();
         currentAppVersion = getCurrentAppVersion();
-        lastAppVersion = getLastAppVersion();
+        initLastAppVersionAndDownloadUrl();
         erreur.info(currentAppVersion + " " + lastAppVersion);
         return true;
     }
@@ -149,9 +152,9 @@ public class Launcher {
         return true;
     }
 
-    private String getDownloadURL(String version) {
-        return "https://github.com/" + userName + "/" + projectName + "/releases/download/" + version + "/" + projectName + ".jar";
-    }
+    // private String getDownloadURL(String version) {
+    // return "https://github.com/" + userName + "/" + projectName + "/releases/download/" + version + "/" + projectName + ".jar";
+    // }
 
     /**
      * {@summary Download the game at given version.}<br>
@@ -161,11 +164,12 @@ public class Launcher {
      * @return true if it work
      */
     public boolean downloadGame(String version) {
-        erreur.info("download " + projectName + " " + version + " from " + getDownloadURL(version) + " to " + getJarPath());
+        // String url = getDownloadURL(version);
+        erreur.info("download " + projectName + " " + version + " from " + downloadUrl + " to " + getJarPath());
         getProgression().iniLauncher();
         File fi = new File(getFolderGameJar());
         fi.mkdirs();
-        boolean itWork = fichier.download(getDownloadURL(version), getJarPath(), true);
+        boolean itWork = fichier.download(downloadUrl, getJarPath(), true);
         getProgression().setDownloadingValue(100);
         return itWork;
     }
@@ -417,17 +421,22 @@ public class Launcher {
     }
     /**
      * {@summary It download the infos off last stable version &#38; return tag_name value.}
-     * 
-     * @return last aviable jar version
      */
-    private String getLastAppVersion() {
+    private void initLastAppVersionAndDownloadUrl() {
         String url = "https://api.github.com/repos/" + userName + "/" + projectName + "/releases/latest";
         String content = FLUFiles.readFileFromWeb(url);
         if (content == null || content.isEmpty()) {
-            erreur.erreur("Fail to download lastVersionInfo");
-            return null;
+            erreur.erreur("Fail to download last release info");
+            return;
         }
-        return getXVersion(content, "tag_name");
+        try {
+            JsonObject parser = (JsonObject) Jsoner.deserialize(content);
+            lastAppVersion = getXVersion(content, "tag_name", parser);
+            downloadUrl = getDownloadURL(lastAppVersion, parser);
+        } catch (Exception e) {
+            erreur.erreur("Fail to parse last release info");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -438,9 +447,8 @@ public class Launcher {
      * @param nameOfTheVersion name of the version
      * @return a version String as 1.49.12
      */
-    public String getXVersion(String content, String nameOfTheVersion) {
+    public String getXVersion(String content, String nameOfTheVersion, JsonObject parser) {
         try {
-            JsonObject parser = (JsonObject) Jsoner.deserialize(content);
             String version = (String) parser.get(nameOfTheVersion);
             if (version == null) {
                 erreur.alerte("can't read " + nameOfTheVersion + " version");
@@ -450,6 +458,24 @@ public class Launcher {
             erreur.alerte("can't read " + nameOfTheVersion + " version");
             return "0.0.0";
         }
+    }
+    public String getDownloadURL(String version, JsonObject parser) throws JsonException {
+        JsonArray assets = (JsonArray) parser.get("assets");
+        if (assets == null) {
+            erreur.alerte("can't read assets");
+            return null;
+        }
+
+        for (Object asset : assets) {
+            JsonObject assetJson = (JsonObject) asset;
+            String browser_download_url = (String) assetJson.get("browser_download_url");
+            if (browser_download_url != null && browser_download_url.contains(".jar")) {
+                erreur.info("downloadUrl: " + browser_download_url);
+                return browser_download_url;
+            }
+        }
+
+        return null;
     }
 
     private String getAllGamesFolder() { return Os.getOs().isWindows() ? System.getenv("APPDATA") : System.getProperty("user.home"); }

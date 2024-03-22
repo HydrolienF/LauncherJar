@@ -32,13 +32,13 @@ class ProgressionGUI implements Progression {
                 frame.setContentPane(panel);
 
                 messageLabel = new JLabel("");
-                messageLabel.setPreferredSize(new Dimension(300, 20));
+                messageLabel.setPreferredSize(new Dimension(500, 20));
                 frame.getContentPane().add(messageLabel);
 
                 progressBar = new JProgressBar();
                 progressBar.setMaximum(100);
                 progressBar.setValue(0);
-                progressBar.setPreferredSize(new Dimension(300, 20));
+                progressBar.setPreferredSize(new Dimension(500, 20));
                 progressBar.setForeground(Color.GREEN);
                 frame.getContentPane().add(progressBar);
 
