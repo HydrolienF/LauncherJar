@@ -17,8 +17,8 @@ public class Main {
             launcher.iniSettings();
             launcher.downloadInGUIIfNeeded(); // GUI will be hide when download will be over
             launcher.launchGameWithRestart();
-            launcher.saveSettings();
         } while (fullRestart);
+        launcher.saveSettings(); // not in while because we need to do it into launchGameWithRestart if fullRestart=true
     }
 
     public static void setFullRestart(boolean fullRestart) { Main.fullRestart = fullRestart; }
