@@ -35,7 +35,6 @@ public class Launcher {
     private String currentAppVersion;
     private String lastAppVersion;
     private boolean justGetVersion = false;
-    private String mainFolder;
     private Map<String, Map<String, GameData>> gamesData;
     private Yaml yaml;
     private long timeStarted;
@@ -488,12 +487,7 @@ public class Launcher {
         }
     }
 
-    private String getMainFolder() {
-        if (mainFolder == null) {
-            mainFolder = getAllGamesFolder() + "/." + projectName.toLowerCase() + "/";
-        }
-        return mainFolder;
-    }
+    private String getMainFolder() { return getAllGamesFolder() + "/." + projectName.toLowerCase() + "/"; }
 
     private String getFolderGameJar() { return getMainFolder() + "game/"; }
     private String getFolderTemporary() { return getMainFolder() + "temp/"; }
