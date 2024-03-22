@@ -96,11 +96,11 @@ public class Launcher {
         return true;
     }
     public boolean saveSettings() {
-        getCurrentGameData().setLastTimePlayed(System.currentTimeMillis());
-        getCurrentGameData().setPlayedTime(getCurrentGameData().getPlayedTime() + (System.currentTimeMillis() - timeStarted));
-        timeStarted = System.currentTimeMillis();
-
         try {
+            getCurrentGameData().setLastTimePlayed(System.currentTimeMillis());
+            getCurrentGameData().setPlayedTime(getCurrentGameData().getPlayedTime() + (System.currentTimeMillis() - timeStarted));
+            timeStarted = System.currentTimeMillis();
+
             File f = getDownloadedGamesDataFile();
             f.getParentFile().mkdirs();
 
@@ -267,6 +267,7 @@ public class Launcher {
             case 101: {
                 // Launch game from new settings location.
                 try {
+                    saveSettings();
                     initGameToLaunchSettings(new FileInputStream(getLauncherJarFolder() + "gameToLaunch.json"));
                     Main.setFullRestart(true);
                 } catch (Exception e) {
