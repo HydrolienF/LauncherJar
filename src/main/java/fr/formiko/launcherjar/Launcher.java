@@ -268,7 +268,7 @@ public class Launcher {
             case 100: {
                 return true; // restart game
             }
-            case 101: {
+            case 101,-1073740791: {
                 // Launch game from new settings location.
                 try {
                     saveSettings();
@@ -464,6 +464,25 @@ public class Launcher {
         if (assets == null) {
             erreur.alerte("can't read assets");
             return null;
+        }
+
+        for (Object asset : assets) {
+            JsonObject assetJson = (JsonObject) asset;
+            String browser_download_url = (String) assetJson.get("browser_download_url");
+            if (browser_download_url != null && browser_download_url.toLowerCase().contains(projectName.toLowerCase() + ".jar")) {
+                erreur.info("downloadUrl: " + browser_download_url);
+                return browser_download_url;
+            }
+        }
+
+        for (Object asset : assets) {
+            JsonObject assetJson = (JsonObject) asset;
+            String browser_download_url = (String) assetJson.get("browser_download_url");
+            if (browser_download_url != null && browser_download_url.toLowerCase().contains(".jar")
+                    && browser_download_url.toLowerCase().contains(projectName.toLowerCase())) {
+                erreur.info("downloadUrl: " + browser_download_url);
+                return browser_download_url;
+            }
         }
 
         for (Object asset : assets) {
