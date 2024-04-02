@@ -268,7 +268,7 @@ public class Launcher {
             case 100: {
                 return true; // restart game
             }
-            case 101: {
+            case 101,-1073740791: {
                 // Launch game from new settings location.
                 try {
                     saveSettings();
