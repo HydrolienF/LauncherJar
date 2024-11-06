@@ -55,7 +55,7 @@
     <dependency>
 	    <groupId>com.github.FormikoLudo</groupId>
 	    <artifactId>Utils</artifactId>
-	    <version>0.0.4</version>
+	    <version>0.0.9</version>
 	  </dependency>
   </dependencies>
 
