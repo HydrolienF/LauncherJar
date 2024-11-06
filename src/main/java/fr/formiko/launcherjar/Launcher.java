@@ -459,6 +459,12 @@ public class Launcher {
             return "0.0.0";
         }
     }
+    /**
+     * Try to find the best download URL for the game.
+     * It try projectName.jar
+     * then a file witch contain projectName and end with .jar
+     * then just choose a .jar
+     */
     public String getDownloadURL(String version, JsonObject parser) throws JsonException {
         JsonArray assets = (JsonArray) parser.get("assets");
         if (assets == null) {
