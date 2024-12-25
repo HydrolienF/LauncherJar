@@ -18,9 +18,6 @@ inputs:
   user-name:
     description: 'Name of the github user account'
     required: true
-  launcher-jar-version:
-    description: 'Version of launcher jar'
-    required: true
   GITHUB_TOKEN:
     description: 'dollar{{ github.token }} from your action so that this action can add artifacts'
     required: true
@@ -88,25 +85,6 @@ runs:
       echo "mainPath=$mainPath" >> $GITHUB_OUTPUT
       echo $mainPath
 
-
-  - name: download LauncherJar files
-    uses: HydrolienF/usual@0.3.38
-    with:
-      args: 'download https://github.com/HydrolienF/LauncherJar/archive/refs/tags/${{ inputs.launcher-jar-version }}.zip temp.zip'
-  
-  # args is probably choose before steps start, so we can't use result of it.
-  - name: unzip LauncherJar files
-    if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension)
-    uses: HydrolienF/usual@0.3.38
-    with:
-      args: 'unzip temp.zip D:/a/${{ inputs.project-name }}/${{ inputs.project-name }}/'
-
-  - name: unzip LauncherJar files
-    if: contains(fromJSON('["jar", "deb", "rpm", "dmg", "pkg"]'), inputs.launcher-extension)
-    uses: HydrolienF/usual@0.3.38
-    with:
-      args: 'unzip temp.zip $HOME/work/${{ inputs.project-name }}/${{ inputs.project-name }}/'
-
   - name: Create missing config file README, LICENSE, jvm.config, icon.png
     shell: pwsh
     if: inputs.launcher-extension=='jar'
@@ -121,7 +99,7 @@ runs:
         "-XX:+UseZGC -XX:MinHeapSize=512m -XX:SoftMaxHeapSize=2G -XX:MaxRAMPercentage=90" | Out-File -FilePath "jvm.config"
       }
       if (!(Test-Path "icon.png")) {
-        cp LauncherJar-${{ inputs.launcher-jar-version }}/icon.png .
+        cp ${{ github.action_path }}/icon.png .
       }
 
   - name: Create icon from png version
@@ -148,7 +126,10 @@ runs:
       echo ls -------------------------------------
       ls
       echo ----------------------------------------
-      cd LauncherJar-${{ inputs.launcher-jar-version }}/
+
+      mv ${{ github.action_path }}/* LauncherJar/
+      cd LauncherJar/
+
       echo '''
       {
           "userName": "${{ inputs.user-name }}",
@@ -156,9 +137,9 @@ runs:
           "gui": ${{ inputs.gui }},
       }
       ''' > settings.json
-      mvn -ntp versions:set -DnewVersion="${{ inputs.launcher-jar-version }}"
+      mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
       mvn -ntp package
-      mv target/LauncherJar-${{ inputs.launcher-jar-version }}.jar ${{ inputs.project-name }}Launcher.jar
+      mv target/LauncherJar*.jar ${{ inputs.project-name }}Launcher.jar
       echo "choose name"
       nom=${{ inputs.project-name }}${{ inputs.app-version }}
       if [[ -e out/ ]]; then
@@ -194,7 +175,7 @@ runs:
       ls ..
       echo "-----------------------"
       cd ..
-      mv LauncherJar-${{ inputs.launcher-jar-version }}/out/${{ inputs.project-name }}Launcher.zip ${{ inputs.project-name }}Launcher.zip
+      mv LauncherJar/out/${{ inputs.project-name }}Launcher.zip ${{ inputs.project-name }}Launcher.zip
 
 
   - name: download jlink/
