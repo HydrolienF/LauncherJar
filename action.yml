@@ -76,7 +76,7 @@ runs:
       $projectName = $projectName.Substring($projectName.LastIndexOf('/')+1)
       echo "project-name=$projectName" >> $env:GITHUB_OUTPUT
       echo $projectName
-      $userName = ${{ github.repository_owner }}
+      $userName = "${{ github.repository_owner }}"
       echo "user-name=$userName" >> $env:GITHUB_OUTPUT
       echo $userName
 
