@@ -72,7 +72,7 @@ runs:
     id: data
     shell: pwsh
     run: |
-      $projectName = ${{ github.repository }}
+      $projectName = "${{ github.repository }}"
       $projectName = $projectName.Substring($projectName.LastIndexOf('/')+1)
       echo "project-name=$projectName" >> $env:GITHUB_OUTPUT
       echo $projectName
