@@ -17,14 +17,14 @@ inputs:
     required: true
   release-url:
     description: 'dollar{{ steps.create_release.outputs.upload_url }} from your action so that this action can add artifacts'
-    required: true
+    required: true # TODO create the release and use the url internally
   app-version:
     description: 'Version of the app & of the launcher'
     required: true
   uuid:
     description: 'Universally unique identifier for your app on Windows & Mac'
     required: false
-    default: ''
+    default: '' # TODO set UUID from Java `UUID.fromString(user-name/project-name)` if it's empty
   launcher-extension:
     description: 'The launcher extention: jar, exe, msi, deb, rpm, dmg, or pkg'
     required: false
@@ -59,12 +59,6 @@ inputs:
     required: false
     default: 'temurin'
 
-outputs:
-  project-name:
-    description: 'Name of your projet'
-  user-name:
-    description: 'Name of the github user account'
-
 runs:
   using: "composite"
   steps:
@@ -75,25 +69,16 @@ runs:
       java-version: ${{ inputs.JAVA_VERSION }}
 
   - name: Set project-name & user-name
+    id: data
     shell: pwsh
     run: |
       $projectName = ${{ github.repository }}
       $projectName = $projectName.Substring($projectName.LastIndexOf('/')+1)
-      echo "project-name=$projectName" >> $GITHUB_OUTPUT
+      echo "project-name=$projectName" >> $env:GITHUB_OUTPUT
       echo $projectName
       $userName = ${{ github.repository_owner }}
-      echo "user-name=$userName" >> $GITHUB_OUTPUT
+      echo "user-name=$userName" >> $env:GITHUB_OUTPUT
       echo $userName
-
-  - name: define main path
-    shell: pwsh
-    id: defineMainPath
-    run: |
-      $ros = "${{ runner.os }}"
-      if($ros -eq "Windows"){ $mainPath="D:/a/${{ outputs.project-name }}/${{ outputs.project-name }}/" }
-      else { $mainPath="~/work/${{ outputs.project-name }}/${{ outputs.project-name }}/" }
-      echo "mainPath=$mainPath" >> $GITHUB_OUTPUT
-      echo $mainPath
 
   - name: Create missing config file README, LICENSE, jvm.config, icon.png
     shell: pwsh
@@ -145,16 +130,16 @@ runs:
 
       echo '''
       {
-          "userName": "${{ outputs.user-name }}",
-          "projectName": "${{ outputs.project-name }}",
+          "userName": "${{ steps.data.outputs.user-name }}",
+          "projectName": "${{ steps.data.outputs.project-name }}",
           "gui": ${{ inputs.gui }},
       }
       ''' > settings.json
       mvn -ntp versions:set -DnewVersion="${{ inputs.app-version }}"
       mvn -ntp package
-      mv target/LauncherJar*.jar ${{ outputs.project-name }}Launcher.jar
+      mv target/LauncherJar*.jar ${{ steps.data.outputs.project-name }}Launcher.jar
       echo "choose name"
-      nom=${{ outputs.project-name }}${{ inputs.app-version }}
+      nom=${{ steps.data.outputs.project-name }}${{ inputs.app-version }}
       if [[ -e out/ ]]; then
         echo "clear out"
         rm out/ -fr
@@ -167,7 +152,7 @@ runs:
       ls 
       echo ----------------------------------------
       echo "cp .jar, README, LICENSE, version & jvm.config"
-      mv ${{ outputs.project-name }}Launcher.jar out/$nom/.
+      mv ${{ steps.data.outputs.project-name }}Launcher.jar out/$nom/.
       cp ../README* out/$nom/.
       cp ../LICENSE* out/$nom/LICENSE.md
       # cp ../version.md out/$nom/.
@@ -177,7 +162,7 @@ runs:
 
       echo "zip part"
       cd out/
-      zip -qr ${{ outputs.project-name }}Launcher.zip $nom
+      zip -qr ${{ steps.data.outputs.project-name }}Launcher.zip $nom
       echo "delete directory"
       rm -fr $nom
       cd ..
@@ -188,35 +173,35 @@ runs:
       ls ..
       echo "-----------------------"
       cd ..
-      mv LauncherJar/out/${{ outputs.project-name }}Launcher.zip ${{ outputs.project-name }}Launcher.zip
+      mv LauncherJar/out/${{ steps.data.outputs.project-name }}Launcher.zip ${{ steps.data.outputs.project-name }}Launcher.zip
 
 
   - name: download jlink/
     if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension) && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip D:/a/${{ outputs.project-name }}/${{ outputs.project-name }}/jlink/ jWindows/'
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip D:/a/${{ steps.data.outputs.project-name }}/${{ steps.data.outputs.project-name }}/jlink/ jWindows/'
   - name: download jlink/
     if: contains(fromJSON('["deb", "rpm"]'), inputs.launcher-extension)  && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ outputs.project-name }}/${{ outputs.project-name }}//jlink/ jLinux/'
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ steps.data.outputs.project-name }}/${{ steps.data.outputs.project-name }}//jlink/ jLinux/'
   - name: download jlink/
     if: contains(fromJSON('["dmg", "pkg"]'), inputs.launcher-extension) && inputs.runTimeImage!=''
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ outputs.project-name }}/${{ outputs.project-name }}//jlink/ jMac/'
+      args: 'downloadAndUnzip https://github.com/HydrolienF/JRE/releases/download/${{ inputs.JRE_VERSION }}/jlink.zip ~/work/${{ steps.data.outputs.project-name }}/${{ steps.data.outputs.project-name }}//jlink/ jMac/'
 
   - name: download launcher as .zip unziped
     if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension)
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/${{ outputs.user-name }}/${{ outputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ outputs.project-name }}Launcher.zip D:/a/${{ outputs.project-name }}/${{ outputs.project-name }}/in/ ${{ outputs.project-name }}${{ inputs.app-version }}/'
+      args: 'downloadAndUnzip https://github.com/${{ steps.data.outputs.user-name }}/${{ steps.data.outputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ steps.data.outputs.project-name }}Launcher.zip D:/a/${{ steps.data.outputs.project-name }}/${{ steps.data.outputs.project-name }}/in/ ${{ steps.data.outputs.project-name }}${{ inputs.app-version }}/'
   - name: download launcher as .zip unziped
     if: contains(fromJSON('["deb", "rpm", "dmg", "pkg"]'), inputs.launcher-extension)
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'downloadAndUnzip https://github.com/${{ outputs.user-name }}/${{ outputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ outputs.project-name }}Launcher.zip ~/work/${{ outputs.project-name }}/${{ outputs.project-name }}/in/ ${{ outputs.project-name }}${{ inputs.app-version }}/'
+      args: 'downloadAndUnzip https://github.com/${{ steps.data.outputs.user-name }}/${{ steps.data.outputs.project-name }}/releases/download/${{ inputs.app-version }}/${{ steps.data.outputs.project-name }}Launcher.zip ~/work/${{ steps.data.outputs.project-name }}/${{ steps.data.outputs.project-name }}/in/ ${{ steps.data.outputs.project-name }}${{ inputs.app-version }}/'
 
 
   - name: Move out some data from in/ & ls before create installer
@@ -261,7 +246,7 @@ runs:
     if: contains(fromJSON('["exe", "msi"]'), inputs.launcher-extension) && inputs.LAUNCH_AFTER_INSTALL
     uses: HydrolienF/usual@0.3.38
     with:
-      args: 'download https://gist.githubusercontent.com/HydrolienF/97a6c94a0016adab590b55180b437712/raw/main.wxs D:/a/${{ outputs.project-name }}/${{ outputs.project-name }}/winRessources/main.wxs'
+      args: 'download https://gist.githubusercontent.com/HydrolienF/97a6c94a0016adab590b55180b437712/raw/main.wxs D:/a/${{ steps.data.outputs.project-name }}/${{ steps.data.outputs.project-name }}/winRessources/main.wxs'
 
 
   - name: create ${{ inputs.launcher-extension }} installer
@@ -271,8 +256,8 @@ runs:
       OS: 'Windows'
     run: |
       # 1a line is the same for every OS, 2a is personalized by OS.
-      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ outputs.project-name }} --main-jar ${{ outputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ outputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md --vendor ${{ outputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
-      --icon icon.ico --win-shortcut --win-menu --win-menu-group "${{ outputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ steps.data.outputs.project-name }} --main-jar ${{ steps.data.outputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ steps.data.outputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md --vendor ${{ steps.data.outputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      --icon icon.ico --win-shortcut --win-menu --win-menu-group "${{ steps.data.outputs.project-name }}" --win-upgrade-uuid "${{ inputs.uuid }}" --resource-dir winRessources
 
   - name: create ${{ inputs.launcher-extension }} installer
     shell: pwsh
@@ -280,16 +265,16 @@ runs:
     env:
       OS: 'Linux'
     run: |
-      $packageName = echo $("${{ outputs.project-name }}".ToLower())
+      $packageName = echo $("${{ steps.data.outputs.project-name }}".ToLower())
       mkdir debRessources/
       cp icon.png debRessources/
       echo "$packageName" > debRessources/launcher.desktop
       echo "echo 'chmod'
       chmod -R 777 /opt/$packageName/
-      echo 'Create shortcut. You can launch ${{ outputs.project-name }} in cmd line with:'
+      echo 'Create shortcut. You can launch ${{ steps.data.outputs.project-name }} in cmd line with:'
       echo $packageName
       sudo rm -f /bin/$packageName
-      sudo ln -s /opt/$packageName/bin/${{ outputs.project-name }} /bin/$packageName" > debRessources/postinst
+      sudo ln -s /opt/$packageName/bin/${{ steps.data.outputs.project-name }} /bin/$packageName" > debRessources/postinst
       echo "echo 'remove shortcut'
       sudo rm -f /bin/$packageName
       echo 'remove temp data'
@@ -304,7 +289,7 @@ runs:
       echo "======================================================"
       cat debRessources/postrm
       echo "======================================================"
-      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ outputs.project-name }} --main-jar ${{ outputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ outputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ outputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ steps.data.outputs.project-name }} --main-jar ${{ steps.data.outputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version ${{ inputs.app-version }} --description "Launcher of ${{ steps.data.outputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ steps.data.outputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
       --icon icon.png --linux-package-name $packageName --linux-shortcut --linux-deb-maintainer ${{ inputs.deb-maintainer-email }} --linux-menu-group "Game;StrategyGame" --linux-app-category games --resource-dir debRessources/
 
   - name: create ${{ inputs.launcher-extension }} installer
@@ -319,8 +304,8 @@ runs:
       if($appVersion[0] -eq '0'){
         $appVersion = '1'+$appVersion.Substring(1, $appVersion.length-1)
       }
-      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ outputs.project-name }} --main-jar ${{ outputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version $appVersion --description "Launcher of ${{ outputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ outputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
-      --icon icon.icns --mac-package-name $("${{ outputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
+      jpackage --java-options "$(cat jvm.config)" --input in -d out --name ${{ steps.data.outputs.project-name }} --main-jar ${{ steps.data.outputs.project-name }}Launcher.jar --main-class fr.formiko.launcherjar.Main --app-version $appVersion --description "Launcher of ${{ steps.data.outputs.project-name }} v${{ inputs.app-version }}" --license-file LICENSE.md  --vendor ${{ steps.data.outputs.user-name }} ${{ inputs.runTimeImage }} -t ${{ inputs.launcher-extension }} `
+      --icon icon.icns --mac-package-name $("${{ steps.data.outputs.project-name }}".ToLower()) --mac-package-identifier "${{ inputs.uuid }}"
 
   - name: mv & ls after create installer
     shell: pwsh
@@ -330,7 +315,7 @@ runs:
       echo "ls out"
       ls out
       echo "======================================================"
-      mv ./out/${{ outputs.project-name }}*.${{ inputs.launcher-extension }} ${{ outputs.project-name }}.${{ inputs.launcher-extension }}
+      mv ./out/${{ steps.data.outputs.project-name }}*.${{ inputs.launcher-extension }} ${{ steps.data.outputs.project-name }}.${{ inputs.launcher-extension }}
       echo "======================================================"
       echo "ls"
       ls
@@ -343,8 +328,8 @@ runs:
     uses: actions/upload-release-asset@v1
     with:
       upload_url: ${{ inputs.release-url }}
-      asset_path: ${{ outputs.project-name }}Launcher.zip
-      asset_name: ${{ outputs.project-name }}Launcher.zip
+      asset_path: ${{ steps.data.outputs.project-name }}Launcher.zip
+      asset_name: ${{ steps.data.outputs.project-name }}Launcher.zip
       asset_content_type: application/zip
 
   - name: upload artifact else
@@ -352,6 +337,6 @@ runs:
     uses: actions/upload-release-asset@v1
     with:
       upload_url: ${{ inputs.release-url }}
-      asset_path: ${{ outputs.project-name }}.${{ inputs.launcher-extension }}
-      asset_name: ${{ outputs.project-name }}.${{ inputs.launcher-extension }}
+      asset_path: ${{ steps.data.outputs.project-name }}.${{ inputs.launcher-extension }}
+      asset_name: ${{ steps.data.outputs.project-name }}.${{ inputs.launcher-extension }}
       asset_content_type: application/${{ inputs.launcher-extension }}
