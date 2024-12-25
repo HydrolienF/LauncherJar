@@ -125,7 +125,7 @@ runs:
       ls ${{ github.action_path }}
       echo ----------------------------------------
 
-      mv ${{ github.action_path }} LauncherJar/
+      cp -r ${{ github.action_path }} LauncherJar/
       cd LauncherJar/
 
       echo '''
