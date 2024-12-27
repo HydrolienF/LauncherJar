@@ -5,11 +5,6 @@ branding:
   icon: 'play'
   color: 'orange'
 
-on:
-  pull_request:
-    branches: [master]
-    types: [closed]
-
 
 inputs:
   GITHUB_TOKEN:
